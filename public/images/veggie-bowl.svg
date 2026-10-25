@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="400" viewBox="0 0 720 400" role="img" aria-labelledby="title desc">
+  <title id="title">Roasted veggie bowl — illustrated placeholder</title><desc id="desc">An overhead illustration of a bowl of rice, broccoli, chickpeas, and roasted vegetables.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#dce3cf"/><stop offset="1" stop-color="#aebb9c"/></linearGradient>
+    <radialGradient id="rice"><stop stop-color="#f4e5bd"/><stop offset="1" stop-color="#dacb9d"/></radialGradient>
+    <pattern id="grains" width="22" height="19" patternUnits="userSpaceOnUse"><path d="m4 3 5 3m7 8-3 3" stroke="#fff6d5" stroke-width="4" stroke-linecap="round"/></pattern>
+    <g id="broccoli"><path d="m0 0 6 26" stroke="#8f9d50" stroke-width="9"/><g fill="#3b6847"><circle cx="-10" cy="-4" r="12"/><circle cx="7" cy="-11" r="14"/><circle cx="18" cy="3" r="12"/><circle cx="1" cy="5" r="13"/></g><g fill="#63834e"><circle cx="-10" cy="-9" r="5"/><circle cx="5" cy="-16" r="6"/><circle cx="16" cy="0" r="5"/></g></g>
+    <g id="potato"><path d="m-16-12 27-3 10 22-30 10Z" fill="#cf7637"/><path d="m-11-8 18-2 6 14-19 6Z" fill="#e69a4c"/><path d="m11-15 10 22-8-3-6-14Z" fill="#b5652c"/></g>
+    <g id="chickpea"><circle r="8" fill="#d8b773"/><path d="M-3-3Q2-7 4-1" fill="none" stroke="#f5d69a" stroke-width="3" stroke-linecap="round"/></g>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h720v400H0z"/>
+  <path d="m-30 59 176-33 67 365-196 23Z" fill="#eee7d3"/>
+  <path d="m112 38 63 345m-54-347 63 348" stroke="#cfb689" stroke-width="2"/>
+  <ellipse cx="374" cy="225" rx="198" ry="155" fill="#405035" opacity=".17"/>
+  <ellipse cx="363" cy="202" rx="193" ry="166" fill="#d2cbb5"/>
+  <ellipse cx="363" cy="195" rx="190" ry="161" fill="#fbf5e6"/>
+  <ellipse cx="363" cy="195" rx="161" ry="136" fill="url(#rice)"/>
+  <ellipse cx="363" cy="195" rx="158" ry="133" fill="url(#grains)"/>
+  <use href="#broccoli" x="267" y="160" transform="rotate(-25 267 160)"/><use href="#broccoli" x="298" y="111"/><use href="#broccoli" x="327" y="157" transform="rotate(22 327 157)"/><use href="#broccoli" x="242" y="208"/><use href="#broccoli" x="290" y="206" transform="rotate(-20 290 206)"/>
+  <use href="#potato" x="384" y="114"/><use href="#potato" x="430" y="135" transform="rotate(15 430 135)"/><use href="#potato" x="381" y="157" transform="rotate(-20 381 157)"/><use href="#potato" x="456" y="175"/><use href="#potato" x="413" y="183"/>
+  <path d="M407 224c23-9 47-2 61 20l-11 12c-11-20-29-24-47-15Z" fill="#b85938"/><path d="M395 263c31-6 54 0 61 20l-14 9c-8-15-20-17-45-13Z" fill="#d98742"/><path d="M352 232c4 26 14 44 34 51l7-14c-16-5-21-17-24-39Z" fill="#bc603d"/>
+  <g><use href="#chickpea" x="298" y="258"/><use href="#chickpea" x="320" y="250"/><use href="#chickpea" x="334" y="272"/><use href="#chickpea" x="308" y="288"/><use href="#chickpea" x="285" y="280"/><use href="#chickpea" x="347" y="303"/><use href="#chickpea" x="361" y="288"/><use href="#chickpea" x="328" y="300"/><use href="#chickpea" x="273" y="251"/></g>
+  <path d="m339 194 29-10m-22 21 34-9m-24 20 23-7" stroke="#f6edce" stroke-width="7" stroke-linecap="round"/>
+  <g transform="translate(607 100)"><ellipse cx="4" cy="8" rx="46" ry="43" fill="#46563a" opacity=".13"/><circle r="44" fill="#f9f4e3"/><circle r="34" fill="#d9c78f"/><path d="M-20-12c17-16 43 2 34 23S-16 20-12 4s20-9 24 1" fill="none" stroke="#eee3ba" stroke-width="5"/></g>
+  <g transform="translate(600 298) rotate(-15)"><circle r="45" fill="#ccaf48"/><circle r="39" fill="#f7e3a1"/><circle r="31" fill="#e8c867"/><path d="M0-32V32M-28-16l56 32M-28 16l56-32" stroke="#fbefc6" stroke-width="3"/><circle r="5" fill="#fbefc6"/></g>
+  <g transform="translate(92 260) rotate(-10)" stroke="#a7aa97" stroke-linecap="round" fill="none"><path d="M0 0v88q0 8 8 8t8-8V0M8 96v92" stroke-width="8"/><path d="M-7 0v75m30-75v75" stroke-width="5"/></g>
+</svg>

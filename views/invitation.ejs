@@ -1,0 +1,16 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page">
+  <div class="page-intro"><h1><%= t("Create organizer account") %></h1></div>
+  <p><%= t("You are invited as a volunteer for") %> <strong><%= invitation.organizationName %></strong>.</p>
+  <p><%= t("Account email:") %> <strong><%= invitation.email %></strong></p>
+  <p><%= t("This separate organizer account manages pickups and cannot reserve food.") %></p>
+  <form class="account-form" method="post" action="/invitations/<%= token %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label for="name"><%= t("Your name") %></label><input id="name" name="name" autocomplete="name" minlength="2" maxlength="80" required>
+    <label for="password"><%= t("Password") %></label><input id="password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+    <p class="field-help"><%= t("Use 12–128 characters.") %></p>
+    <button class="button button-primary" type="submit"><%= t("Create organizer account") %></button>
+  </form>
+</main>
+<%- include('partials/footer') %>

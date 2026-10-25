@@ -1,0 +1,30 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page browse-page">
+  <section class="listings-section" aria-labelledby="listings-heading">
+    <div class="section-heading">
+      <h1 id="listings-heading"><%= t("Available for pickup") %></h1>
+      <span class="count-label"><%= foods.length %> <%= t("listings") %></span>
+    </div>
+    <% if (!foods.length) { %>
+      <div class="empty-state"><h2><%= t("No food available for pickup") %></h2><p><%= t("There are no open listings with portions available right now.") %></p></div>
+    <% } %>
+    <div class="food-list">
+      <% foods.forEach((food, index) => { %>
+        <a class="food-card" href="/foods/<%= food.id %>" aria-label="<%= t('View details for {name}', { name: food.name }) %>">
+          <%- include('partials/food-image', { food, thumbnail: true, priority: index === 0 }) %>
+          <div class="food-card-body">
+            <h2><%= food.name %></h2>
+            <p class="organization"><%= food.organization %></p>
+            <div class="food-meta">
+              <p class="pickup-date"><%= t("Pickup:") %> <time datetime="<%= food.pickupDateISO %>"><%= food.pickupDate %></time><span class="pickup-window"><%= food.pickupWindow %></span></p>
+              <p><strong><%= food.availablePortions %> <%= t("portions") %></strong> <%= t("available") %></p>
+            </div>
+            <div class="card-footer"><span class="free-badge"><%= t("Free") %></span><span class="details-action"><%= t("View details") %> <%- include('partials/icon', { name: 'right' }) %></span></div>
+          </div>
+        </a>
+      <% }); %>
+    </div>
+  </section>
+</main>
+<%- include('partials/footer') %>

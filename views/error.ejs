@@ -1,0 +1,17 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page">
+  <% if (status === 503) { %><%- include('partials/preview-notice') %><% } %>
+  <section class="empty-state error-state">
+    <h1><%= t(title) %></h1>
+    <p class="form-error" role="alert"><%= t(message) %></p>
+    <% if (currentUser && currentUser.role === 'organizer') { %>
+      <a class="button button-primary" href="<%= organizerBase %>"><%= t("Back to organizer dashboard") %></a>
+      <a class="text-action" href="<%= organizerBase %>/pickups"><%= t("Review organization pickups") %></a>
+    <% } else { %>
+      <a class="button button-primary" href="/my-pickups"><%= t("Check My Pickups") %></a>
+      <a class="text-action" href="/"><%= t("Back to Browse") %></a>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/footer') %>

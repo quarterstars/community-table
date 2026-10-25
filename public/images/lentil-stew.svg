@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="400" viewBox="0 0 720 400" role="img" aria-labelledby="title desc">
+  <title id="title">Lentil stew — illustrated placeholder</title><desc id="desc">A warm bowl of lentil and carrot stew on a cream table with a green napkin.</desc>
+  <defs>
+    <linearGradient id="table" x2="1" y2="1"><stop stop-color="#ede0c6"/><stop offset="1" stop-color="#d5bd94"/></linearGradient>
+    <radialGradient id="soup"><stop stop-color="#ba7336"/><stop offset=".78" stop-color="#9f5e2a"/><stop offset="1" stop-color="#774521"/></radialGradient>
+    <radialGradient id="bowl"><stop stop-color="#fffdf2"/><stop offset=".75" stop-color="#f7f1df"/><stop offset="1" stop-color="#d7c5a3"/></radialGradient>
+    <pattern id="cloth" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 0h14M0 7h14M0 0v14M7 0v14" stroke="#fff" stroke-opacity=".055"/></pattern>
+    <g id="lentil"><ellipse rx="6" ry="4" fill="#d2a064"/><path d="M-3 0h5" stroke="#ab713f" stroke-width="1"/></g>
+    <g id="carrot"><path d="m-12-8 21-3 5 17-19 5Z" fill="#e7963f"/><path d="m-6-4 10-2" stroke="#f0b768" stroke-width="3"/></g>
+    <g id="parsley" fill="#49643d"><ellipse rx="7" ry="13" transform="rotate(-35)"/><ellipse rx="7" ry="12" transform="translate(10 4) rotate(40)"/><ellipse rx="6" ry="11" transform="translate(-6 9) rotate(-70)"/><path d="m1 0 7 29" fill="none" stroke="#63804d" stroke-width="3"/></g>
+  </defs>
+  <path fill="url(#table)" d="M0 0h720v400H0z"/>
+  <path d="m541-36 188 62-106 324-185-63Z" fill="#53694f"/>
+  <path d="m541-36 188 62-106 324-185-63Z" fill="url(#cloth)"/>
+  <path d="m546-6-91 289m100-286-91 290" stroke="#a4b299" stroke-width="2" stroke-opacity=".4"/>
+  <ellipse cx="350" cy="227" rx="191" ry="158" fill="#745e3c" opacity=".15"/>
+  <ellipse cx="342" cy="208" rx="187" ry="165" fill="url(#bowl)"/>
+  <ellipse cx="342" cy="202" rx="166" ry="144" fill="#fcf8ed"/>
+  <ellipse cx="342" cy="202" rx="151" ry="130" fill="url(#soup)"/>
+  <path d="M245 140c45-40 126-48 184-6M229 236c49 54 140 77 209 23" fill="none" stroke="#d49753" stroke-width="8" stroke-opacity=".25"/>
+  <g opacity=".93"><use href="#lentil" x="263" y="158"/><use href="#lentil" x="289" y="133"/><use href="#lentil" x="322" y="149"/><use href="#lentil" x="360" y="124"/><use href="#lentil" x="397" y="142"/><use href="#lentil" x="425" y="178"/><use href="#lentil" x="450" y="204"/><use href="#lentil" x="385" y="187"/><use href="#lentil" x="342" y="193"/><use href="#lentil" x="291" y="190"/><use href="#lentil" x="240" y="211"/><use href="#lentil" x="263" y="243"/><use href="#lentil" x="309" y="240"/><use href="#lentil" x="367" y="246"/><use href="#lentil" x="414" y="240"/><use href="#lentil" x="399" y="284"/><use href="#lentil" x="347" y="288"/><use href="#lentil" x="300" y="278"/><use href="#lentil" x="330" y="112"/><use href="#lentil" x="461" y="236"/><use href="#lentil" x="274" y="219"/><use href="#lentil" x="322" y="215"/><use href="#lentil" x="375" y="214"/><use href="#lentil" x="342" y="262"/></g>
+  <use href="#carrot" x="281" y="161"/><use href="#carrot" x="377" y="155" transform="rotate(15 377 155)"/><use href="#carrot" x="423" y="219" transform="rotate(35 423 219)"/><use href="#carrot" x="279" y="262" transform="rotate(-25 279 262)"/><use href="#carrot" x="366" y="278"/>
+  <use href="#parsley" x="326" y="168"/><use href="#parsley" x="354" y="190" transform="rotate(60 354 190)"/><use href="#parsley" x="312" y="204" transform="rotate(-30 312 204)"/>
+  <g transform="translate(548 109) rotate(18)"><ellipse cx="4" cy="4" rx="20" ry="31" fill="#253a30" opacity=".2"/><path d="M0 17v185" stroke="#bdc2b4" stroke-width="12" stroke-linecap="round"/><ellipse rx="21" ry="32" fill="#d2d5c9"/><ellipse cx="-3" cy="-3" rx="14" ry="23" fill="#b2b7aa"/><path d="M-13-17c-5 17-1 29 4 34" fill="none" stroke="#f4f0de" stroke-width="3"/></g>
+  <g transform="translate(80 288) rotate(-25)"><path d="M0 48V-30" stroke="#66784e" stroke-width="4"/><g fill="#65794d"><ellipse cx="-13" cy="-14" rx="15" ry="7" transform="rotate(30 -13 -14)"/><ellipse cx="13" cy="0" rx="16" ry="8" transform="rotate(-30 13 0)"/><ellipse cx="-12" cy="18" rx="16" ry="8" transform="rotate(25 -12 18)"/></g></g>
+</svg>

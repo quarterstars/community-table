@@ -1,0 +1,39 @@
+{
+  "name": "community-table",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Community food sharing with recipient accounts and persistent MongoDB reservations",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "seed:demo": "node scripts/seed-demo.js",
+    "check:db": "node scripts/check-db.js",
+    "migrate:organizations": "node scripts/migrate-organizations.js",
+    "dev:organizer": "node scripts/organizer-admin.js",
+    "migrate:account-types": "node scripts/migrate-account-types.js",
+    "update:sample-photos": "node scripts/update-sample-photos.js",
+    "update:misir-photo": "node scripts/update-misir-photo.js",
+    "demo:rehearsal": "node scripts/prepare-rehearsal.js"
+  },
+  "dependencies": {
+    "connect-mongo": "^6.0.0",
+    "dotenv": "^18.0.6",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "express-session": "^1.19.0",
+    "mongodb": "^6.21.0",
+    "mongoose": "^8.24.5",
+    "multer": "^2.4.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^10.4.3",
+    "supertest": "^7.3.1"
+  }
+}

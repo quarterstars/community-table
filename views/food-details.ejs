@@ -1,0 +1,89 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page details-page">
+  <% if (currentUser && currentUser.role === 'organizer') { %>
+    <a class="back-link" href="<%= organizerBase === '/organizer' ? '/organizer' : organizerBase + '/listings' %>"><%- include('partials/icon', { name: 'left' }) %> <%= t("Back to Listings") %></a>
+  <% } else { %>
+    <a class="back-link" href="/"><%- include('partials/icon', { name: 'left' }) %> <%= t("Back to Browse") %></a>
+  <% } %>
+  <div class="detail-heading"><h1><%= t("Food details") %></h1><span class="sample-label"><%= t("Sample listing") %></span></div>
+
+  <%- include('partials/food-image', { food, thumbnail: false, priority: true }) %>
+
+  <section class="detail-summary" aria-labelledby="food-heading">
+    <div class="food-title-row"><h2 id="food-heading"><%= food.name %></h2><span class="free-badge"><%= t("Free") %></span></div>
+    <p class="organization"><%= food.organization %></p>
+    <p class="food-description"><%= food.description %></p>
+    <div class="detail-facts">
+      <div><%- include('partials/icon', { name: 'portions' }) %><span><strong><%= food.availablePortions %> <%= t("portions available") %></strong><small><%= t("Limit:") %> <%= food.perAccountLimit %> <%= t("portions per account") %></small></span></div>
+      <div><%- include('partials/icon', { name: 'clock' }) %><span><strong><time datetime="<%= food.pickupDateISO %>"><%= food.pickupDate %></time> · <%= food.pickupWindow %></strong><small><%= t("America/Chicago") %></small></span></div>
+    </div>
+  </section>
+
+  <section class="detail-section" aria-labelledby="portion-heading">
+    <h2 id="portion-heading"><%= t("Portion size") %></h2>
+    <p><%= t(food.portionSize || 'Unknown — not provided by the organizer.') %></p>
+  </section>
+  <section class="detail-section" aria-labelledby="ingredients-heading">
+    <h2 id="ingredients-heading"><%= t("Ingredients") %></h2>
+    <% const ingredients = Array.isArray(food.ingredients) ? food.ingredients.filter((ingredient) => typeof ingredient === 'string' && ingredient.trim()) : []; %>
+    <% if (ingredients.length) { %>
+      <ul class="ingredient-list"><% ingredients.forEach((ingredient) => { %><li><%= ingredient %></li><% }); %></ul>
+    <% } else { %>
+      <p class="unknown-information"><%= t("Unknown — not provided by the organizer.") %></p>
+    <% } %>
+  </section>
+  <section class="allergen-notice" aria-labelledby="allergens-heading">
+    <h2 id="allergens-heading"><%- include('partials/icon', { name: 'info' }) %> <%= t("Organizer-reported allergens") %></h2>
+    <p><%= t(typeof food.allergens === 'string' && food.allergens.trim() ? food.allergens : 'Unknown — not provided by the organizer.') %></p>
+    <p class="allergen-source"><%= t("Sample organizer information, not independently verified.") %></p>
+  </section>
+  <section class="detail-section pickup-instructions" aria-labelledby="pickup-heading">
+    <h2 id="pickup-heading"><%= t("Pickup instructions") %></h2>
+    <p class="pickup-location"><%- include('partials/icon', { name: 'pin' }) %><strong><%= food.pickupLocation %></strong></p>
+    <p><%= food.pickupInstructions %></p>
+  </section>
+
+  <section class="quantity-panel" aria-labelledby="quantity-heading">
+    <div class="quantity-header">
+      <div><h2 id="quantity-heading"><%= t("Available quantity") %></h2><p><%= food.availablePortions %> <%= t("portions available") %></p></div>
+      <span class="free-badge"><%= t("Free") %></span>
+    </div>
+    <% if (currentUser && currentUser.role === 'organizer') { %>
+      <p class="reservation-note"><%= t("Organizer accounts manage distribution and cannot reserve food. Use a separate recipient account with a different email to receive food.") %></p>
+    <% } else if (existingReservation) { %>
+      <p class="reservation-note"><%= t("You have reserved") %> <%= existingReservation.quantity %> <%= t("portions from this listing.") %></p>
+      <a class="button button-primary" href="/reservations/<%= existingReservation.id %>"><%= t("View your reservation") %></a>
+    <% } else if (canReserve && reservationsReady) { %>
+    <form method="post" action="/foods/<%= food.id %>/reserve" data-quantity-selector data-reservation-form>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="hidden" name="requestKey" value="<%= requestKey %>">
+    <div class="quantity-row">
+      <label for="quantity"><%= t("Portions") %></label>
+      <div class="quantity-control">
+        <button class="quantity-button" type="button" data-quantity-step="-1" aria-label="<%= t('Decrease quantity') %>" aria-controls="quantity" hidden><%- include('partials/icon', { name: 'minus' }) %></button>
+        <input type="number" id="quantity" name="quantity" value="1" min="1" max="<%= quantityMaximum %>" step="1" inputmode="numeric" required aria-describedby="quantity-limit">
+        <button class="quantity-button" type="button" data-quantity-step="1" aria-label="<%= t('Increase quantity') %>" aria-controls="quantity" hidden><%- include('partials/icon', { name: 'plus' }) %></button>
+      </div>
+    </div>
+    <p id="quantity-limit" class="quantity-limit"><%= t("Choose 1–") %><%= quantityMaximum %> <%= t("portions. One active reservation per account for this listing.") %></p>
+    <p class="sr-only" aria-live="polite" aria-atomic="true" data-quantity-announcement><%= t("1 portion selected.") %></p>
+    <% if (currentUser) { %>
+      <button class="button button-primary reserve-submit" type="submit" aria-describedby="reservation-note"><%= t("Reserve food") %></button>
+      <p id="reservation-note" class="reservation-note"><%= t("You can cancel before the pickup window ends. Your pickup code will appear in My Pickups.") %></p>
+    <% } else { %>
+      <a class="button button-primary reserve-submit" href="/login?next=<%= encodeURIComponent('/foods/' + food.id) %>"><%= t("Log in to reserve") %></a>
+      <p class="reservation-note"><%= t("A recipient account is required to save a reservation.") %></p>
+    <% } %>
+    </form>
+    <% } else { %>
+      <button class="button reservation-button" type="button" disabled><%= t(typeof limitReached !== 'undefined' && limitReached ? 'Account limit reached' : 'Reservations unavailable') %></button>
+      <% if (typeof limitReached !== 'undefined' && limitReached) { %>
+        <p class="reservation-note"><%= t("You have reached this listing’s per-account limit, including collected or missed portions. Your saved pickups remain in My Pickups.") %></p>
+      <% } else { %>
+        <p class="reservation-note"><%= t("This listing or event is paused or closed, its pickup window has ended, or all portions have been reserved. Existing pickups remain available in My Pickups.") %></p>
+      <% } %>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/footer') %>

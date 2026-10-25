@@ -1,0 +1,178 @@
+[
+  {
+    "listingId": "sample-doro-wat",
+    "image": "/images/foods/doro-wat.webp",
+    "thumbnail": "/images/foods/doro-wat-thumb.webp",
+    "imageAlt": "Doro wat chicken stew with eggs",
+    "amImageAlt": "የዶሮና የእንቁላል ወጥ",
+    "title": "MyPlate gov Cultural Food (20241025-USDA-FNS-UNK-0018).jpg",
+    "creator": "USDA, Food and Nutrition Service",
+    "source": "https://commons.wikimedia.org/wiki/File:MyPlate_gov_Cultural_Food_(20241025-USDA-FNS-UNK-0018).jpg",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-USGov-USDA",
+    "verifiedOn": "2026-10-08",
+    "verification": "Wikimedia Commons imageinfo extmetadata and source file description.",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/MyPlate_gov_Cultural_Food_%2820241025-USDA-FNS-UNK-0018%29.jpg/1280px-MyPlate_gov_Cultural_Food_%2820241025-USDA-FNS-UNK-0018%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "originalSize": [
+      1280,
+      960
+    ],
+    "crop": [
+      420,
+      0,
+      1140,
+      400
+    ],
+    "changes": "Cropped, resized, converted to WebP; metadata removed. Square thumbnail cropped separately.",
+    "files": {
+      "doro-wat.webp": {
+        "bytes": 99866,
+        "sha256": "fb100eaaf66f23a4168db6ffae722ec675c2106b4b2ff18d2bcac2778c159237"
+      },
+      "doro-wat-thumb.webp": {
+        "bytes": 10548,
+        "sha256": "89ad0e9dd9f976b83334bea0761f1411931bfa6a3ac3946badfe07a0b3dac09d"
+      }
+    }
+  },
+  {
+    "listingId": "sample-misir-wot-injera",
+    "image": "/images/foods/misir-wot-injera.webp",
+    "thumbnail": "/images/foods/misir-wot-injera-thumb.webp",
+    "imageAlt": "Misir wot lentil stew served on injera",
+    "amImageAlt": "በእንጀራ ላይ የቀረበ ምስር ወጥ",
+    "title": "Misir Wot and Gomen Besiga - Abyssinia, Brighton.jpg",
+    "creator": "Andy Li",
+    "source": "https://commons.wikimedia.org/wiki/File:Misir_Wot_and_Gomen_Besiga_-_Abyssinia,_Brighton.jpg",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "verifiedOn": "2026-10-08",
+    "verification": "Original Commons file page and imageinfo metadata identify misir wot on injera and explicitly dedicate this photograph to CC0. Attachment reuse permission was not established; attachment not reused.",
+    "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Misir_Wot_and_Gomen_Besiga_-_Abyssinia%2C_Brighton.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "originalSize": [
+      3024,
+      4032
+    ],
+    "crop": [
+      1450,
+      650,
+      2340,
+      1144
+    ],
+    "changes": "Cropped to the upper misir wot plate, excluding the lower meat dish, people and tabletop; resized and converted to WebP. Square thumbnail cropped separately to retain both lentils and injera.",
+    "files": {
+      "misir-wot-injera.webp": {
+        "bytes": 55484,
+        "sha256": "34d8dd8d8eb11367fefc3af99fc808f484119511a8ce9a19642b61a8dd54dfe6"
+      },
+      "misir-wot-injera-thumb.webp": {
+        "bytes": 5928,
+        "sha256": "6c321050e6f1911a7f5c0bc2643053939ae23c07a39256ec34dc3b804ecbe252"
+      }
+    },
+    "thumbnailCrop": [
+      1500,
+      520,
+      2300,
+      1320
+    ]
+  },
+  {
+    "listingId": "sample-atkilt-wot-injera",
+    "image": "/images/foods/atkilt-wot.webp",
+    "thumbnail": "/images/foods/atkilt-wot-thumb.webp",
+    "imageAlt": "Atkilt wot with cabbage, carrots and potatoes",
+    "amImageAlt": "ከጎመን፣ ካሮትና ድንች የተዘጋጀ አትክልት ወጥ",
+    "title": "Doro wat, tikil gomen with injera",
+    "creator": "psd",
+    "source": "https://www.flickr.com/photos/45581782@N00/54292996570",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "verifiedOn": "2026-10-08",
+    "verification": "Current Flickr HTML JSON-LD license and footer link agree with Openverse.",
+    "downloadUrl": "https://live.staticflickr.com/65535/54292996570_864fafce27_o.jpg",
+    "originalSize": [
+      2268,
+      4032
+    ],
+    "crop": [
+      0,
+      1100,
+      1150,
+      2770
+    ],
+    "changes": "Cropped, resized, converted to WebP; metadata removed. Square thumbnail cropped separately.",
+    "files": {
+      "atkilt-wot.webp": {
+        "bytes": 82172,
+        "sha256": "a401ce49900ed880349920da0365bb989d9fb88082d91a10bc656de3783fbd15"
+      },
+      "atkilt-wot-thumb.webp": {
+        "bytes": 8118,
+        "sha256": "14802779c0640b4913fa0269c68053983193c8181e61c4b9d70edaa4b53c4354"
+      }
+    }
+  },
+  {
+    "listingId": "sample-glazed-donuts",
+    "image": "/images/foods/glazed-doughnuts.webp",
+    "thumbnail": "/images/foods/glazed-doughnuts-thumb.webp",
+    "imageAlt": "A sugar-glazed ring doughnut",
+    "amImageAlt": "በስኳር ሽፋን የተሸፈነ ዶናት",
+    "title": "2019-01-29 14 04 42 A glazed doughnut in the Franklin Farm section of Oak Hill, Fairfax County, Virginia.jpg",
+    "creator": "Famartin",
+    "source": "https://commons.wikimedia.org/wiki/File:2019-01-29_14_04_42_A_glazed_doughnut_in_the_Franklin_Farm_section_of_Oak_Hill,_Fairfax_County,_Virginia.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "verifiedOn": "2026-10-08",
+    "verification": "Wikimedia Commons imageinfo extmetadata and source file description.",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/2019-01-29_14_04_42_A_glazed_doughnut_in_the_Franklin_Farm_section_of_Oak_Hill%2C_Fairfax_County%2C_Virginia.jpg/1280px-2019-01-29_14_04_42_A_glazed_doughnut_in_the_Franklin_Farm_section_of_Oak_Hill%2C_Fairfax_County%2C_Virginia.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "originalSize": [
+      1280,
+      960
+    ],
+    "crop": null,
+    "changes": "Cropped, resized, converted to WebP; metadata removed. Square thumbnail cropped separately.",
+    "files": {
+      "glazed-doughnuts.webp": {
+        "bytes": 42462,
+        "sha256": "7d6f09e398458d03ad13ddded572e47b60b1a465cce03d435820218ae77769eb"
+      },
+      "glazed-doughnuts-thumb.webp": {
+        "bytes": 3974,
+        "sha256": "ede3b78e85cf5a21c3e80f475ddd9ef4368113b7cc7d88a9400c7a9569b4a84b"
+      }
+    }
+  },
+  {
+    "listingId": "sample-fruit-cups",
+    "image": "/images/foods/fruit-cups.webp",
+    "thumbnail": "/images/foods/fruit-cups-thumb.webp",
+    "imageAlt": "Example fruit cups containing orange and kiwi",
+    "amImageAlt": "ብርቱካንና ኪዊ የያዙ የምሳሌ ፍራፍሬ ኩባያዎች",
+    "title": "Kiwi-and-orange fruit cups for students in the National School Breakfast Program (Arlington, VA, USA - 19-10-2011).jpg",
+    "creator": "USDA Photo by Bob Nichols",
+    "source": "https://commons.wikimedia.org/wiki/File:Kiwi-and-orange_fruit_cups_for_students_in_the_National_School_Breakfast_Program_(Arlington,_VA,_USA_-_19-10-2011).jpg",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-USGov-USDA",
+    "verifiedOn": "2026-10-08",
+    "verification": "Wikimedia Commons imageinfo extmetadata and source file description.",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Kiwi-and-orange_fruit_cups_for_students_in_the_National_School_Breakfast_Program_%28Arlington%2C_VA%2C_USA_-_19-10-2011%29.jpg/1280px-Kiwi-and-orange_fruit_cups_for_students_in_the_National_School_Breakfast_Program_%28Arlington%2C_VA%2C_USA_-_19-10-2011%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "originalSize": [
+      1280,
+      914
+    ],
+    "crop": null,
+    "changes": "Cropped, resized, converted to WebP; metadata removed. Square thumbnail cropped separately.",
+    "files": {
+      "fruit-cups.webp": {
+        "bytes": 67356,
+        "sha256": "8f1e6970733c330490cc879e18544299bff99931813d3d4fc25121270464bbf1"
+      },
+      "fruit-cups-thumb.webp": {
+        "bytes": 6744,
+        "sha256": "6ce152d62e99b7d5de4fd32b6992792fc6965eecb389baf0956e1942af76bc6e"
+      }
+    }
+  }
+]

@@ -1,0 +1,28 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('../partials/header') %>
+<main id="main-content" class="page">
+  <%- include('top') %>
+  <div class="organizer-totals" aria-label="<%= t('Portion totals') %>">
+    <% for (const [label, key] of [['Available', 'available'], ['Reserved', 'reserved'], ['Collected', 'collected']]) { %><div><strong><%= totals[key] %></strong><span><%= t(label) %></span></div><% } %>
+  </div>
+  <p class="field-help"><%= t("Portion totals for this organization. Available includes inventory in paused listings.") %></p>
+  <% if (totals.missed) { %><p class="field-help"><%= t("Missed pickup windows:") %> <%= totals.missed %> <%= t("portions. These portions are not returned to inventory automatically.") %></p><% } %>
+  <% if (membership.role === 'admin') { %><div class="organizer-actions"><a class="button button-primary" href="<%= organizerBase %>/events/new"><%= t("Create event") %></a><a class="button button-secondary" href="<%= organizerBase %>/listings/new"><%= t("Create food listing") %></a></div><% } %>
+  <section class="detail-section"><h2><%= t("Events") %></h2>
+    <% if (!events.length) { %><p><%= t("No events yet.") %></p><% } %>
+    <div class="pickup-list"><% events.forEach(event => { %><article class="pickup-card">
+      <h2><%= event.title %></h2><p class="organization"><%= t(event.status) %> · <%= event.pickupDate %></p><p><%= event.pickupWindow %></p><p><%= event.pickupLocation %></p>
+      <% if (membership.role === 'admin') { %><a class="text-action" href="<%= organizerBase %>/events/<%= event._id %>/edit"><%= t("Edit event") %></a>
+      <form method="post" action="<%= organizerBase %>/events/<%= event._id %>/pause"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="action" value="<%= event.status === 'open' ? 'pause' : 'resume' %>"><button class="button button-secondary" type="submit"><%= t(event.status === 'open' ? 'Pause new reservations' : 'Resume reservations') %></button></form><% } %>
+    </article><% }); %></div>
+  </section>
+  <section class="detail-section"><h2><%= t("Food listings") %></h2>
+    <% if (!listings.length) { %><p><%= t("No food listings yet. Create an event before adding food.") %></p><% } %>
+    <div class="pickup-list"><% listings.forEach(food => { %><article class="pickup-card"><h2><%= food.name %></h2><p class="organization"><%= t(food.status) %> · <%= food.availablePortions %> <%= t("available /") %> <%= food.totalPortions %> <%= t("total") %></p><p><%= food.pickupDate %> · <%= food.pickupWindow %></p>
+      <a class="text-action" href="/foods/<%= food.id %>"><%= t("View public details") %></a>
+      <% if (membership.role === 'admin') { %><a class="text-action" href="<%= organizerBase %>/listings/<%= food._id %>/edit"><%= t("Edit listing") %></a>
+      <form method="post" action="<%= organizerBase %>/listings/<%= food._id %>/pause"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="action" value="<%= food.status === 'open' ? 'pause' : 'resume' %>"><button class="button button-secondary" type="submit"><%= t(food.status === 'open' ? 'Pause new reservations' : 'Resume reservations') %></button></form><% } %>
+    </article><% }); %></div>
+  </section>
+</main>
+<%- include('../partials/footer') %>

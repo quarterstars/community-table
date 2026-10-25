@@ -1,0 +1,8 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('../partials/header') %>
+<main id="main-content" class="page">
+  <%- include('top') %>
+  <form class="account-form" method="post" action="<%= organizerBase %>/pickups/lookup"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><label for="pickupCode"><%= t("Pickup code") %></label><input id="pickupCode" name="pickupCode" autocomplete="off" maxlength="64" required aria-describedby="code-help"><p class="field-help" id="code-help"><%= t("Find a reservation in this organization. Lookup does not confirm collection.") %></p><button class="button button-primary" type="submit"><%= t("Look up pickup") %></button></form>
+  <section class="detail-section"><h2><%= t("Reservations") %></h2><% if (!reservations.length) { %><p><%= t("No reservations for this organization.") %></p><% } %><div class="pickup-list"><% reservations.forEach(reservation => { %><article class="pickup-card"><h2><%= reservation.food.name %></h2><p class="organization"><%= t(reservation.user?.name || 'Account unavailable') %> · <%= reservation.quantity %> <%= t("portions ·") %> <%= t(reservation.displayStatus) %></p><p><%= reservation.pickupDate %> · <%= reservation.pickupWindow %></p><a class="text-action" href="<%= organizerBase %>/pickups/<%= reservation.id %>"><%= t("Review reservation") %></a></article><% }); %></div></section>
+</main>
+<%- include('../partials/footer') %>

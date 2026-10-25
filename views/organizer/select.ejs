@@ -1,0 +1,11 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('../partials/header') %>
+<main id="main-content" class="page">
+  <div class="page-intro"><h1><%= t("Organizations") %></h1></div>
+  <p><%= t("Choose an organization you belong to.") %></p>
+  <div class="pickup-list"><% memberships.forEach(member => { if (member.organization) { %>
+    <article class="pickup-card"><h2><%= member.organization.name %></h2><p class="organization"><%= t(member.role === 'admin' ? 'Administrator' : 'Volunteer') %></p><a class="text-action" href="/organizer/<%= member.organization._id %>"><%= t("Open organization") %></a></article>
+  <% } }); %></div>
+  <% if (!memberships.length) { %><p><%= t("No organization access assigned. Ask an administrator to add this organizer account.") %></p><% } %>
+</main>
+<%- include('../partials/footer') %>

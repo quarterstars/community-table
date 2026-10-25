@@ -1,0 +1,4 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<% if (!reservationsReady) { %>
+  <aside class="preview-notice" role="status"><p><%= t("Accounts and reservations unavailable. Please try again later.") %></p></aside>
+<% } %>

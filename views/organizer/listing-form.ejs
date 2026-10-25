@@ -1,0 +1,41 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('../partials/header') %>
+<main id="main-content" class="page">
+  <%- include('top') %>
+  <% if (!events.length) { %><section class="empty-state"><h2><%= t("Create an event first") %></h2><p><%= t("A food listing belongs to one of your organization’s events.") %></p><a class="button button-primary" href="<%= organizerBase %>/events/new"><%= t("Create event") %></a></section><% } else { %>
+  <p class="field-help"><%= t("Dates and times are in America/Chicago. Existing reservations retain their saved pickup information.") %></p>
+  <form class="account-form" method="post" enctype="multipart/form-data" action="<%= organizerBase %>/listings<%= listing ? '/' + listing._id : '' %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <% if (listing) { %><input type="hidden" name="revision" value="<%= listing.revision || 0 %>"><% } %>
+    <label for="eventId"><%= t("Event") %></label><select id="eventId" name="eventId" required><% events.forEach(event => { %><option value="<%= event._id %>" <%= String(listing?.eventId) === String(event._id) ? 'selected' : '' %>><%= event.title %></option><% }); %></select>
+    <label for="name"><%= t("Food name") %></label><input id="name" name="name" maxlength="150" value="<%= listing?.name || '' %>" required>
+    <label for="foodPhoto"><%= t("Food photo (optional)") %></label>
+    <input id="foodPhoto" name="foodPhoto" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help" data-food-photo>
+    <p class="field-help" id="photo-help"><%= t("Choose a JPEG, PNG or WebP image up to 5 MB. On supported phones, the picker also offers the camera. Leave blank to keep the current photo; new listings use a neutral placeholder.") %></p>
+    <figure class="photo-preview" data-photo-preview <%= listing?.imageType === 'photo' ? '' : 'hidden' %>>
+      <img src="<%= listing?.image || '/images/food-placeholder.svg' %>" alt="<%= t('Food photo preview') %>" width="360" height="200">
+      <figcaption aria-live="polite"><%= t("Food photo preview") %></figcaption>
+    </figure>
+    <label for="description"><%= t("Description") %></label><textarea id="description" name="description" maxlength="2000" required><%= listing?.description || '' %></textarea>
+    <label for="portionSize"><%= t("Portion size") %></label><input id="portionSize" name="portionSize" maxlength="300" value="<%= listing?.portionSize || '' %>" required>
+    <label for="ingredients"><%= t("Ingredients (optional)") %></label><textarea id="ingredients" name="ingredients" maxlength="2000" aria-describedby="ingredients-help"><%= listing?.ingredients?.join('\n') || '' %></textarea><p class="field-help" id="ingredients-help"><%= t("One ingredient per line or separated by commas. Leave blank to show explicitly unknown information.") %></p>
+    <label for="allergenStatus"><%= t("Organizer-reported allergens") %></label><select id="allergenStatus" name="allergenStatus"><option value="unknown" <%= !listing?.allergens ? 'selected' : '' %>><%= t("Unknown — not provided") %></option><option value="reported" <%= listing?.allergens ? 'selected' : '' %>><%= t("Reported below") %></option></select>
+    <label for="allergens"><%= t("Allergen details (required when reported)") %></label><textarea id="allergens" name="allergens" maxlength="2000"><%= listing?.allergens || '' %></textarea>
+    <label for="totalPortions"><%= t("Total portions") %></label><input id="totalPortions" name="totalPortions" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="<%= listing?.totalPortions || 1 %>" required><p class="field-help"><%= t("Total includes available, reserved, collected, and missed portions. Cancelled portions are available again.") %></p>
+    <label for="perAccountLimit"><%= t("Limit per recipient account") %></label><input id="perAccountLimit" name="perAccountLimit" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="<%= listing?.perAccountLimit || 1 %>" required>
+    <label for="pickupStartsAt"><%= t("Pickup start · America/Chicago") %></label><input id="pickupStartsAt" name="pickupStartsAt" type="datetime-local" value="<%= chicagoInput(listing?.pickupStartsAt) %>" required>
+    <label for="pickupEndsAt"><%= t("Pickup end · America/Chicago") %></label><input id="pickupEndsAt" name="pickupEndsAt" type="datetime-local" value="<%= chicagoInput(listing?.pickupEndsAt) %>" required>
+    <label for="pickupLocation"><%= t("Pickup location") %></label><input id="pickupLocation" name="pickupLocation" maxlength="300" value="<%= listing?.pickupLocation || '' %>" required>
+    <label for="pickupInstructions"><%= t("Pickup instructions") %></label><textarea id="pickupInstructions" name="pickupInstructions" maxlength="3000" required><%= listing?.pickupInstructions || '' %></textarea>
+    <label for="status"><%= t("New reservations") %></label><select id="status" name="status"><% for (const status of ['open', 'paused', 'closed']) { %><option value="<%= status %>" <%= (listing?.status || 'open') === status ? 'selected' : '' %>><%= t(status) %></option><% } %></select>
+    <section class="detail-section"><h2><%= t("Amharic listing text (optional)") %></h2><p class="field-help"><%= t("Keep translations consistent with the English recipe and pickup instructions. Blank fields are omitted from the public listing.") %></p>
+      <% for (const [field, key, label, max] of [['name','amName','Food name',150],['description','amDescription','Description',2000],['portionSize','amPortionSize','Portion size',300],['ingredients','amIngredients','Ingredients · one per line',2000],['allergens','amAllergens','Reported allergens',2000],['pickupLocation','amPickupLocation','Pickup location',300],['pickupInstructions','amPickupInstructions','Pickup instructions',3000]]) { %>
+        <label for="<%= key %>"><%= t(label) %> · አማርኛ</label><textarea id="<%= key %>" name="<%= key %>" lang="am" maxlength="<%= max %>"><%= Array.isArray(listing?.translations?.am?.[field]) ? listing.translations.am[field].join('\n') : listing?.translations?.am?.[field] || '' %></textarea>
+      <% } %>
+    </section>
+    <button class="button button-primary" type="submit"><%= t("Save food listing") %></button>
+  </form>
+  <% } %>
+  <a class="text-action" href="<%= organizerBase %>"><%= t("Back to dashboard") %></a>
+</main>
+<%- include('../partials/footer') %>

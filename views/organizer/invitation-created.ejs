@@ -1,0 +1,11 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('../partials/header') %>
+<main id="main-content" class="page">
+  <%- include('top') %>
+  <p><%= t("Volunteer invitation created for") %> <strong><%= email %></strong><%= t(". It expires in seven days and can be used once.") %></p>
+  <p><%= t("Share this private link with the invited person. Email delivery is not implemented.") %></p>
+  <a class="text-action pickup-code" href="<%= invitationPath %>"><%= invitationPath %></a>
+  <p class="field-help"><%= t("They should open the link while logged out and create their separate organizer account.") %></p>
+  <a class="button button-primary" href="<%= organizerBase %>/volunteers"><%= t("Back to volunteers") %></a>
+</main>
+<%- include('../partials/footer') %>

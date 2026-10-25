@@ -1,0 +1,23 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page">
+  <div class="page-intro"><h1><%= t("My Pickups") %></h1></div>
+  <% if (!currentUser) { %>
+    <section class="empty-state">
+      <h2><%= t("Log in to see your pickups") %></h2>
+      <p><%= t("Your reservations, pickup codes, and instructions are saved to your recipient account.") %></p>
+      <a class="button button-primary" href="/login?next=%2Fmy-pickups"><%= t("Log in") %></a>
+      <a class="text-action" href="/signup?next=%2Fmy-pickups"><%= t("Create an account") %></a>
+    </section>
+  <% } else if (!reservations.length) { %>
+    <section class="empty-state">
+      <h2><%= t("No reservations yet") %></h2>
+      <p><%= t("Reserve food from an available listing to see its quantity, pickup code, and instructions here.") %></p>
+      <a class="button button-primary" href="/"><%= t("Browse food") %></a>
+    </section>
+  <% } else { %>
+    <%- include('partials/preview-notice') %>
+    <div class="pickup-list"><% reservations.forEach((reservation) => { %><%- include('partials/reservation-card', { reservation, showDetailLink: true }) %><% }); %></div>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

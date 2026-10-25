@@ -1,0 +1,15 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('../partials/header') %>
+<main id="main-content" class="page">
+  <%- include('top') %>
+  <% if (membership.role === 'admin') { %><a class="button button-primary" href="<%= organizerBase %>/listings/new"><%= t("Create food listing") %></a><% } %>
+  <% if (!listings.length) { %><p><%= t("No food listings yet. An administrator can create an event, then add food.") %></p><% } %>
+  <div class="pickup-list"><% listings.forEach(food => { %>
+    <article class="pickup-card"><h2><%= food.name %></h2><p class="organization"><%= t(food.status) %> · <%= food.availablePortions %> <%= t("available /") %> <%= food.totalPortions %> <%= t("total") %></p><p><%= food.pickupDate %> · <%= food.pickupWindow %></p>
+      <a class="text-action" href="/foods/<%= food.id %>"><%= t("View public details") %></a>
+      <% if (membership.role === 'admin') { %><a class="text-action" href="<%= organizerBase %>/listings/<%= food._id %>/edit"><%= t("Edit listing") %></a>
+      <form method="post" action="<%= organizerBase %>/listings/<%= food._id %>/pause"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="action" value="<%= food.status === 'open' ? 'pause' : 'resume' %>"><button class="button button-secondary" type="submit"><%= t(food.status === 'open' ? 'Pause new reservations' : 'Resume reservations') %></button></form><% } %>
+    </article>
+  <% }); %></div>
+</main>
+<%- include('../partials/footer') %>

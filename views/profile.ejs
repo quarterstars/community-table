@@ -1,0 +1,38 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page">
+  <div class="page-intro"><h1><%= t("Profile") %></h1></div>
+  <% if (currentUser) { %>
+    <section class="empty-state">
+      <h2><%= t("Your account") %></h2>
+      <dl class="account-details">
+        <dt><%= t("Name") %></dt><dd><%= currentUser.name %></dd>
+        <dt><%= t("Email") %></dt><dd><%= currentUser.email %></dd>
+        <dt><%= t("Account type") %></dt><dd><%= t(currentUser.role === 'organizer' ? 'Organizer' : 'Recipient') %></dd>
+        <dt><%= t("Member since") %></dt><dd><%= formattedDate(currentUser.createdAt) %></dd>
+      </dl>
+      <form method="post" action="/logout">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="button button-secondary" type="submit"><%= t("Log out") %></button>
+      </form>
+      <% if (currentUser.role === 'organizer') { %>
+        <section class="detail-section"><h2><%= t("Organization access") %></h2>
+          <% if (!memberships.length) { %><p><%= t("No organization access assigned. Ask an administrator to add your organizer account.") %></p><% } %>
+          <% memberships.forEach(member => { if (member.organization) { %>
+            <p><strong><%= member.organization.name %></strong> · <%= t(member.role === 'admin' ? 'Administrator' : 'Volunteer') %></p>
+            <a class="text-action" href="/organizer/<%= member.organization._id %>"><%= t("Open organization dashboard") %></a>
+          <% } }); %>
+        </section>
+        <p class="field-help"><%= t("Organizer accounts cannot reserve food. To receive food, use a separate recipient account with a different email.") %></p>
+      <% } %>
+    </section>
+  <% } else { %>
+    <section class="empty-state">
+      <h2><%= t("You’re browsing as a guest") %></h2>
+      <p><%= t("Anyone can browse food. Log in or create a recipient account to save reservations.") %></p>
+      <a class="button button-primary" href="/login?next=%2Fprofile"><%= t("Log in") %></a>
+      <a class="text-action" href="/signup?next=%2Fprofile"><%= t("Create an account") %></a>
+    </section>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

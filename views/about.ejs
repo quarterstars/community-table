@@ -1,0 +1,23 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page">
+  <div class="page-intro"><h1><%= t("About Community Table") %></h1></div>
+  <section class="detail-section">
+    <p><%= t("Prototype with sample food listings. No real food pickups are offered.") %></p>
+    <p><%= t("The foods, recipes, organizations, locations and pickup instructions are fictional examples. No church or other organization partnership is confirmed.") %></p>
+    <p><%= t("English and Amharic text describe the five sample recipes. Ingredient and allergen statements apply to those examples only. Cross-contact information is unknown.") %></p>
+    <section class="detail-section"><h2><%= t('Photo credits') %></h2>
+      <p><%= t('These are example photographs, not photos of actual pickups. Recipes, ingredients and portions may differ; use the listing details. No photographer or source organization endorses this prototype.') %></p>
+      <% for (const photo of photoCredits) { %>
+        <div class="photo-credit">
+          <p><strong><%= lang === 'am' ? photo.amImageAlt : photo.imageAlt %></strong></p>
+          <% if (photo.license === 'CC BY 2.0') { %><p class="field-help"><%= photo.title %></p><% } %>
+          <p><%= photo.creator %> · <a href="<%= photo.source %>" rel="noreferrer"><%= t('Source photo') %></a> · <a href="<%= photo.licenseUrl %>" rel="noreferrer"><%= t(photo.license) %></a></p>
+          <p class="field-help"><%= t('Cropped, resized and converted to WebP. Square thumbnails are cropped separately.') %><% if (photo.license.startsWith('CC BY-SA')) { %> <%= t('The adapted photo is shared under the same license.') %><% } %></p>
+        </div>
+      <% } %>
+    </section>
+    <a class="button button-primary" href="<%= currentUser?.role === 'organizer' ? '/organizer' : '/' %>"><%= t("Return to app") %></a>
+  </section>
+</main>
+<%- include('partials/footer') %>

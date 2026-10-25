@@ -1,0 +1,24 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<article class="pickup-card">
+  <div class="food-title-row"><h2><%= reservation.food.name %></h2><span class="sample-label"><%= t(reservation.status === 'collected' ? 'Collected' : reservation.status === 'cancelled' ? 'Cancelled' : reservation.canCancel ? 'Reserved' : 'Missed') %></span></div>
+  <p class="organization"><%= reservation.food.organization %></p>
+  <p class="pickup-fact"><strong><%= t("Quantity:") %></strong> <%= reservation.quantity %> <%= t(reservation.quantity === 1 ? 'portion' : 'portions') %></p>
+  <p class="pickup-fact"><strong><%= t("Pickup:") %></strong> <time datetime="<%= reservation.pickupDateISO %>"><%= reservation.pickupDate %></time><span class="pickup-window"><%= reservation.pickupWindow %> <%= t("· America/Chicago") %></span></p>
+  <p class="pickup-fact"><strong><%= t("Pickup code") %></strong><code class="pickup-code"><%= reservation.pickupCode %></code></p>
+  <p class="pickup-fact"><strong><%= t("Location:") %></strong> <%= reservation.food.pickupLocation %></p>
+  <p class="pickup-fact"><strong><%= t("Instructions:") %></strong> <%= reservation.food.pickupInstructions %></p>
+  <% if (reservation.status === 'collected') { %>
+    <p class="reservation-note"><%= t("Collection confirmed. Collected reservations cannot be cancelled.") %></p>
+  <% } else if (reservation.status === 'cancelled') { %>
+    <p class="reservation-note"><%= t("Cancelled. Your portions were returned to the listing.") %></p>
+  <% } else if (reservation.canCancel) { %>
+    <form method="post" action="/reservations/<%= reservation.id %>/cancel" class="cancel-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="button button-secondary"><%= t("Cancel reservation") %></button>
+    </form>
+    <p class="field-help"><%= t("Cancellation is available until the pickup window ends.") %></p>
+  <% } else { %>
+    <p class="reservation-note"><%= t("The pickup deadline has passed. Cancellation is no longer available.") %></p>
+  <% } %>
+  <% if (showDetailLink) { %><a class="text-action" href="/reservations/<%= reservation.id %>"><%= t("View reservation") %> <%- include('icon', { name: 'right' }) %></a><% } %>
+</article>

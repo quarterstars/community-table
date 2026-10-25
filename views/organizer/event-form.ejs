@@ -1,0 +1,20 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('../partials/header') %>
+<main id="main-content" class="page">
+  <%- include('top') %>
+  <p class="field-help"><%= t("Dates and times are in America/Chicago. Pausing affects new reservations; existing pickup windows and instructions remain saved.") %></p>
+  <form class="account-form" method="post" action="<%= organizerBase %>/events<%= event ? '/' + event._id : '' %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <% if (event) { %><input type="hidden" name="revision" value="<%= event.revision %>"><% } %>
+    <label for="title"><%= t("Event name") %></label><input id="title" name="title" maxlength="150" value="<%= event?.title || '' %>" required>
+    <label for="description"><%= t("Description (optional)") %></label><textarea id="description" name="description" maxlength="2000"><%= event?.description || '' %></textarea>
+    <label for="pickupStartsAt"><%= t("Pickup start · America/Chicago") %></label><input id="pickupStartsAt" name="pickupStartsAt" type="datetime-local" value="<%= chicagoInput(event?.pickupStartsAt) %>" required>
+    <label for="pickupEndsAt"><%= t("Pickup end · America/Chicago") %></label><input id="pickupEndsAt" name="pickupEndsAt" type="datetime-local" value="<%= chicagoInput(event?.pickupEndsAt) %>" required>
+    <label for="pickupLocation"><%= t("Pickup location") %></label><input id="pickupLocation" name="pickupLocation" maxlength="300" value="<%= event?.pickupLocation || '' %>" required>
+    <label for="pickupInstructions"><%= t("Pickup instructions") %></label><textarea id="pickupInstructions" name="pickupInstructions" maxlength="3000" required><%= event?.pickupInstructions || '' %></textarea>
+    <label for="status"><%= t("New reservations") %></label><select id="status" name="status"><% for (const status of ['open', 'paused', 'closed']) { %><option value="<%= status %>" <%= (event?.status || 'open') === status ? 'selected' : '' %>><%= t(status) %></option><% } %></select>
+    <button class="button button-primary" type="submit"><%= t("Save event") %></button>
+  </form>
+  <a class="text-action" href="<%= organizerBase %>"><%= t("Back to dashboard") %></a>
+</main>
+<%- include('../partials/footer') %>

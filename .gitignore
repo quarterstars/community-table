@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.cache/
+.DS_Store
+coverage/
+npm-debug.log*
+.local-mongodb/
+var/uploads/

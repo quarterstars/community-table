@@ -1,0 +1,10 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<a class="back-link" href="/organizer"><%= t("Organizations") %></a>
+<p class="organization"><%= organization.name %> · <%= t(membership.role === 'admin' ? 'Administrator' : 'Volunteer') %></p>
+<nav class="organizer-links" aria-label="<%= t('Organizer navigation') %>">
+  <a class="text-action" href="<%= organizerBase %>"><%= t("Dashboard") %></a>
+  <a class="text-action" href="<%= organizerBase %>/listings"><%= t("Listings") %></a>
+  <a class="text-action" href="<%= organizerBase %>/pickups"><%= t("Pickups") %></a>
+  <% if (membership.role === 'admin') { %><a class="text-action" href="<%= organizerBase %>/volunteers"><%= t("Volunteers") %></a><% } %>
+</nav>
+<div class="page-intro organizer-intro"><h1><%= t(title) %></h1></div>

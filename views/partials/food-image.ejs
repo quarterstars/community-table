@@ -1,0 +1,11 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<figure class="food-media <%= thumbnail ? 'food-thumbnail' : 'food-hero' %>">
+  <img class="food-image" src="<%= thumbnail && food.imageThumbnail ? food.imageThumbnail : food.image %>" alt="<%= t(food.imageAlt) %>" width="<%= thumbnail ? 176 : 900 %>" height="<%= thumbnail ? 176 : 500 %>" <%- priority ? 'fetchpriority="high"' : 'loading="lazy"' %>>
+  <% if (food.imageType === 'illustration') { %>
+    <figcaption class="image-caption"><%= t("Illustration") %></figcaption>
+  <% } else if (food.imageType === 'placeholder') { %>
+    <figcaption class="image-caption"><%= t("Placeholder") %></figcaption>
+  <% } else if (!thumbnail && food.imageType === 'photo') { %>
+    <figcaption class="image-caption"><%= t(food.image.startsWith('/uploads/food-photos/') ? 'Organizer photo' : 'Example photo') %></figcaption>
+  <% } %>
+</figure>

@@ -1,0 +1,12 @@
+<% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
+<%- include('partials/header') %>
+<main id="main-content" class="page empty-page">
+  <section class="empty-state" aria-labelledby="not-found-heading">
+    <div class="empty-icon" aria-hidden="true"><%- include('partials/icon', { name: 'table' }) %></div>
+    <span class="sample-label"><%= t("404 · Page not found") %></span>
+    <h1 id="not-found-heading"><%= t("Page not found") %></h1>
+    <p><%= t("We couldn’t find that page or sample listing.") %></p>
+    <a class="button button-primary" href="/"><%= t("Back to Browse") %> <%- include('partials/icon', { name: 'right' }) %></a>
+  </section>
+</main>
+<%- include('partials/footer') %>
