@@ -4,9 +4,9 @@ const { HttpError } = require('../lib/errors');
 function csrfProtection(req, res, next) {
   if (!req.session.csrfToken) req.session.csrfToken = randomBytes(32).toString('hex');
   res.locals.csrfToken = req.session.csrfToken;
-  // Multipart bodies are parsed only on the two authorized listing routes.
+  // Multipart bodies are parsed only on authorized listing create/edit routes.
   // Those routes call this protection again after their bounded parser.
-  const deferredPhotoForm = !req.photoFormParsed && req.method === 'POST' && req.is('multipart/form-data') && /^\/organizer\/[a-f0-9]{24}\/listings(?:\/[a-f0-9]{24})?$/.test(req.path);
+  const deferredPhotoForm = !req.photoFormParsed && req.method === 'POST' && req.is('multipart/form-data') && /^(?:\/organizer\/[a-f0-9]{24}|\/share-food)\/listings(?:\/[a-f0-9]{24})?$/.test(req.path);
   if (!deferredPhotoForm && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     const submitted = req.body?._csrf;
     if (typeof submitted !== 'string' || !/^[a-f0-9]{64}$/.test(submitted) ||
@@ -18,26 +18,15 @@ function csrfProtection(req, res, next) {
 }
 
 function safeNext(value) {
-  return typeof value === 'string' && /^(?:\/|\/profile|\/my-pickups|\/foods\/[a-z0-9-]+|\/organizer(?:\/[a-f0-9]{24}(?:\/(?:listings|pickups|volunteers))?)?)$/.test(value) ? value : '/';
+  return typeof value === 'string' && /^(?:\/|\/profile|\/my-pickups|\/foods\/[a-z0-9-]+|\/reservations\/[a-f0-9]{24}|\/share-food(?:\/listings\/new|\/listings\/[a-f0-9]{24}\/edit|\/pickups\/[a-f0-9]{24})?|\/invitations\/[a-f0-9]{64}|\/organizer(?:\/[a-f0-9]{24}(?:\/(?:listings|pickups|volunteers))?)?)$/.test(value) ? value : '/';
 }
 
-function accountHome(user) { return user?.role === 'organizer' ? '/organizer' : '/'; }
-function accountDestination(user, value) {
-  const destination = safeNext(value);
-  if (user.role === 'organizer') return destination === '/profile' || destination.startsWith('/organizer') ? destination : '/organizer';
-  return destination.startsWith('/organizer') ? '/' : destination;
-}
-function requireAccountType(type) {
-  return (req, res, next) => {
-    if (!req.user) return requireLogin(req, res, next);
-    if (req.user.role !== type) return next(new HttpError(403, type === 'recipient' ? 'Only recipient accounts can reserve food or manage personal pickups. Use a separate recipient account with a different email.' : 'Organizer access requires a separate organizer account. Recipient accounts cannot manage organizations.'));
-    next();
-  };
-}
+function accountHome() { return '/'; }
+function accountDestination(user, value) { return safeNext(value); }
 
 function requireLogin(req, res, next) {
   if (req.user) return next();
-  const destination = req.method === 'GET' ? req.originalUrl.split('?')[0] : req.params.id && req.path.startsWith('/foods/') ? `/foods/${req.params.id}` : '/my-pickups';
+  const destination = req.method === 'GET' ? req.originalUrl.split('?')[0] : req.params.id && req.originalUrl.startsWith('/foods/') ? `/foods/${req.params.id}` : req.originalUrl.startsWith('/share-food') ? '/share-food' : '/my-pickups';
   res.redirect(303, `/login?next=${encodeURIComponent(safeNext(destination))}`);
 }
 
@@ -48,4 +37,4 @@ async function establishSession(req, userId) {
   await new Promise((resolve, reject) => req.session.save((error) => error ? reject(error) : resolve()));
 }
 
-module.exports = { csrfProtection, safeNext, requireLogin, establishSession, requireAccountType, accountHome, accountDestination };
+module.exports = { csrfProtection, safeNext, requireLogin, establishSession, accountHome, accountDestination };

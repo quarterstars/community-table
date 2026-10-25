@@ -5,7 +5,7 @@
   <% if (!currentUser) { %>
     <section class="empty-state">
       <h2><%= t("Log in to see your pickups") %></h2>
-      <p><%= t("Your reservations, pickup codes, and instructions are saved to your recipient account.") %></p>
+      <p><%= t("Your reservations, pickup codes, and instructions are saved to your account.") %></p>
       <a class="button button-primary" href="/login?next=%2Fmy-pickups"><%= t("Log in") %></a>
       <a class="text-action" href="/signup?next=%2Fmy-pickups"><%= t("Create an account") %></a>
     </section>

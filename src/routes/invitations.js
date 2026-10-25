@@ -1,21 +1,18 @@
 const express = require('express');
 const { createInvitationService } = require('../services/accounts');
-const { establishSession } = require('../middleware/security');
+const { requireLogin } = require('../middleware/security');
 const { HttpError } = require('../lib/errors');
-const { rateLimit } = require('express-rate-limit');
-const { MongoRateLimitStore } = require('../lib/mongo-rate-limit-store');
 function createInvitationRoutes(database) {
   const router = express.Router();
   const service = createInvitationService(database);
-  const guestOnly = (req, res, next) => req.user ? next(new HttpError(409, 'Log out before creating a separate organizer account. Your current account will not be converted.')) : next();
-  router.get('/invitations/:token', guestOnly, async (req, res) => {
+  router.get('/invitations/:token', async (req, res) => {
     const invitation = await service.get(req.params.token);
-    res.render('invitation', { title: 'Create organizer account', activePage: 'profile', invitation, token: req.params.token });
+    res.render('invitation', { title: 'Volunteer invitation', activePage: 'share', invitation, token: req.params.token });
   });
-  router.post('/invitations/:token', guestOnly, rateLimit({ windowMs: 3600000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false, store: new MongoRateLimitStore(database.connection.db.collection('rate_limits'), 'invitation'), handler: (req, res, next) => next(new HttpError(429, 'Too many attempts. Please wait before trying again.')) }), async (req, res) => {
-    const user = await service.accept(req.params.token, req.body.name, req.body.password);
-    await establishSession(req, user._id);
-    res.redirect(303, '/organizer');
+  router.post('/invitations/:token', requireLogin, async (req, res) => {
+    if (req.body.confirm !== 'accept') throw new HttpError(422, 'Confirm organization access before accepting.');
+    await service.accept(req.params.token, req.user._id);
+    res.redirect(303, '/share-food');
   });
   return router;
 }

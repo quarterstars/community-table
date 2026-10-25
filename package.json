@@ -2,7 +2,7 @@
   "name": "community-table",
   "version": "0.1.0",
   "private": true,
-  "description": "Community food sharing with recipient accounts and persistent MongoDB reservations",
+  "description": "Community food sharing with unified accounts and persistent MongoDB reservations",
   "type": "commonjs",
   "engines": {
     "node": ">=22"
@@ -18,7 +18,8 @@
     "migrate:account-types": "node scripts/migrate-account-types.js",
     "update:sample-photos": "node scripts/update-sample-photos.js",
     "update:misir-photo": "node scripts/update-misir-photo.js",
-    "demo:rehearsal": "node scripts/prepare-rehearsal.js"
+    "demo:rehearsal": "node scripts/prepare-rehearsal.js",
+    "demo:recording": "node scripts/prepare-recording.js"
   },
   "dependencies": {
     "connect-mongo": "^6.0.0",

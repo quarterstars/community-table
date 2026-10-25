@@ -43,7 +43,7 @@ async function saveFoodPhoto(file, directory = defaultUploadDirectory) {
     await fs.writeFile(files[0], full, { flag: 'wx', mode: 0o600 });
     await fs.writeFile(files[1], thumbnail, { flag: 'wx', mode: 0o600 });
   } catch (error) { await discard(); throw error; }
-  return { fields: { image: `/uploads/food-photos/${name}.webp`, imageType: 'photo', imageAlt: 'Organizer-uploaded food photo' }, discard };
+  return { fields: { image: `/uploads/food-photos/${name}.webp`, imageType: 'photo', imageAlt: 'Shared food photo' }, discard };
 }
 
 module.exports = { parseFoodPhoto, saveFoodPhoto, defaultUploadDirectory, maxPhotoBytes };

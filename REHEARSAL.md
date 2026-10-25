@@ -1,46 +1,32 @@
-# Community Table submission rehearsal
+# Community Table recording checklist
 
-Start from the project folder:
+Run `npm start` in the project folder and open **http://127.0.0.1:3000**. Keep the existing ignored `.env`. Startup verifies Atlas and never resets data.
 
-```sh
-cd "/Users/abebedesalegn/Downloads/community table"
-npm ci
-npm start
-```
-
-Open **http://127.0.0.1:3000**. The existing ignored `.env` supplies MongoDB and the session secret; do not overwrite it. `npm start` verifies Atlas and transaction support and never resets or seeds data. If a server is already running on port 3000, use it or stop that server before starting another.
-
-## Accounts and today's event
-
-Use your existing **organizer@example.test** login and its current password. It is a separate organizer account with admin access to **Cedar Neighborhood Kitchen**, a fictional organization. Organizer navigation is Dashboard, Listings, Pickups, Profile. No password or account role was changed.
-
-The prepared event is **Submission rehearsal · 2026-10-18**. Its pickup window is **October 18, 2026, 12:00 a.m.–11:59 p.m., America/Chicago**. It is already attached to your organizer's organization. This is a prototype demonstration; no real food pickup is offered. Existing events, five sample listings, reservation histories, accounts, and inventory were not reset.
-
-For a recipient, open a separate browser/private window. Log in with an existing recipient email/password, or choose **Create an account** and use a different email, such as `recipient-rehearsal@example.test`, with a password you choose. Public signup always creates a recipient. Recipient navigation is Browse, My Pickups, Profile. Organizer accounts cannot reserve; recipient accounts cannot manage organizations. A legacy recipient with membership/history remains a recipient and was not migrated.
-
-To prepare another Chicago rehearsal day explicitly (without resetting the previous day's records):
+The five fictional sample foods retain their original photos and IDs. Their recording window is **October 25, 00:00 through October 26, 23:59, 2026, America/Chicago**. About explains that no real pickup is offered. To inspect/prepare a later day explicitly:
 
 ```sh
-npm run demo:rehearsal -- --email organizer@example.test --date 2026-10-19
+npm run demo:recording
+npm run demo:recording -- --apply
 ```
 
-Use the actual rehearsal date. The command requires an existing admin of one fictional organization; it creates only that day's missing event and never resets existing events/listings. For multiple eligible organizations, add `--organization cedar-neighborhood-kitchen`. It is disabled in production. There is no need to run `seed:demo` for this rehearsal.
+Preparation preserves account/password/membership records and reservation history. It only renews the five fictional sample listing/event windows and adds any needed stock consistently to total and available quantities. It backs up private records locally in ignored `.cache/recording-backups/`. Repeating it on the same date does not add stock again.
 
-## Rehearse
+## Two accounts, one account model
 
-1. **Organizer → Listings → Create food listing.** Select **Submission rehearsal · 2026-10-18**. Enter a clearly fictional food name, description, portion size, ingredients, and either known sample-recipe allergen details or **Unknown — not provided**. Set **5 total portions** and **3 per recipient account**. Choose a photo and inspect its preview before saving. On supported phones, the native picker offers photos/camera choices; desktop uses a file chooser. For a locally available credited example, use `public/images/foods/misir-wot-injera.webp` for a misir wot listing.
-2. Set the listing pickup window within the event, with its start at or before the current Chicago time and its end later today. For this rehearsal you can use **October 18, 00:00–23:59**. Enter a fictional pickup location/instructions, choose **open**, and save. Collection requires the saved pickup window to have started.
-3. **Recipient → Browse → View details.** Check the photo and pickup information. Reserve **2 portions**. Available inventory should move **5 → 3**. My Pickups shows the quantity, pickup code, dates, location and instructions.
-4. **Recipient → Cancel reservation.** Available inventory returns **3 → 5**. Repeated cancellation cannot restore extra portions. Reserve **2 portions again** and copy this new active pickup code. Inventory returns to **3**.
-5. **Organizer → Pickups.** Look up the new code, review recipient/quantity/status, tick the explicit collection confirmation, and confirm. Status becomes collected; available inventory stays **3**. The confirmation control is removed; repeated requests are rejected. Collected reservations cannot be cancelled.
-6. Edit the listing without selecting another photo: its existing photo stays. Restart the server and revisit Browse/Details: the saved photo stays. New listings without photos use a neutral placeholder.
+Use two separate browser profiles or one normal and one private window. Sign up through the same **Create an account** page, using two demo emails you control, for example `demo-share@example.test` and `demo-pickup@example.test`, and passwords you choose. Existing accounts/passwords also work. Neither account needs organization access, and both can share and receive food.
 
-Reservations are first come, first served. Stored old priority/preference fields have no effect. Listing/event status, available inventory, lifetime per-account limits (active/collected/missed portions), and pickup deadlines still apply. To rehearse again after collecting all allowed portions, use another recipient or create another clearly fictional listing; do not reset inventory below committed portions.
+1. **Guest:** Browse the five sample foods, open Details, inspect a photo, ingredients/allergens and pickup information. Show “Log in to reserve” and Share Food → “Log in to share.” Optionally switch English/Amharic and return to English.
+2. **Account A:** Share Food → Post food. Upload a photo; for a fictional example use the credited [misir photo](public/images/foods/misir-wot-injera.webp). Show the preview. Enter a fictional dish, description, portion size, ingredients and accurate reported allergens or Unknown. Set **5 total portions**, **3 per account**, and a fictional location/instructions. Choose a pickup start at or before the current Chicago time and an end later today/tomorrow. Check the posting confirmation and save.
+3. **Account B:** Browse → the new dish → choose **2 portions**, check the quantity/window confirmation, then Reserve food. Show available stock **5 → 3**, and My Pickups with its code and instructions.
+4. **Account A:** Share Food → your listing → Review pickup. Compare B's code, check the collection confirmation, and confirm. Status becomes Collected; availability stays **3**. A second collection cannot succeed.
+5. **Optional cancellation:** B reserves another available dish, then cancels before its saved deadline. Inventory returns once. A can pause/resume/edit its own listing. Show that A cannot reserve its own dish. To demonstrate the shared account model directly, A can also reserve someone else's dish.
 
-## Upload storage
+After login/signup the app returns to the intended internal screen, with no automatic post/reservation. Church/team management appears in Share Food only for authorized memberships; it is not part of this personal sharing recording.
 
-JPEG, PNG and WebP inputs are checked by the image decoder on the server: maximum **5 MiB**, **20 megapixels**, one still image per request. Filenames and claimed MIME types are untrusted. SVG, corrupt/truncated images, unsupported formats (including HEIC), oversized images, and non-images are rejected. Files are re-encoded as WebP, metadata removed, and square thumbnails generated with random filenames.
+## Recording limits
 
-Saved files live in **`var/uploads/food-photos/`**, ignored by Git. MongoDB stores their local URLs. Keep/back up this directory alongside the database; on a hosted server it must be on persistent storage. Server restarts preserve it. Older uploaded versions remain available for reservation snapshots. Rejected/failed saves clean up new files. There are no profile-photo uploads.
-
-Browser/device camera-picker behavior varies by phone and browser; the form leaves camera/library choices to the device rather than forcing capture. Physical-device camera behavior and HEIC conversion are not verified/supported.
+- Photos accept JPEG, PNG or WebP, at most 5 MiB and 20 megapixels. HEIC/SVG/animated/corrupt images are rejected. Uploads persist under ignored `var/uploads/food-photos/`; back up that directory with the database.
+- Collection requires the **saved** pickup window to have started and not ended. Changing the listing's dates does not rewrite existing pickup snapshots.
+- Active/collected/missed portions count toward the account limit. Create another clearly fictional listing for another take; do not reset inventory/history.
+- The mobile layout is checked in a browser. Physical-device camera/keyboard behavior and independent Amharic linguistic review remain unverified.
+- Use your own passwords. No account credentials belong in the recording, source repository, or handoff.

@@ -6,6 +6,6 @@
   <% } else if (food.imageType === 'placeholder') { %>
     <figcaption class="image-caption"><%= t("Placeholder") %></figcaption>
   <% } else if (!thumbnail && food.imageType === 'photo') { %>
-    <figcaption class="image-caption"><%= t(food.image.startsWith('/uploads/food-photos/') ? 'Organizer photo' : 'Example photo') %></figcaption>
+    <figcaption class="image-caption"><%= t(food.image.startsWith('/uploads/food-photos/') ? 'Shared photo' : 'Example photo') %></figcaption>
   <% } %>
 </figure>

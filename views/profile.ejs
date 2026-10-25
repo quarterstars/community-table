@@ -8,28 +8,27 @@
       <dl class="account-details">
         <dt><%= t("Name") %></dt><dd><%= currentUser.name %></dd>
         <dt><%= t("Email") %></dt><dd><%= currentUser.email %></dd>
-        <dt><%= t("Account type") %></dt><dd><%= t(currentUser.role === 'organizer' ? 'Organizer' : 'Recipient') %></dd>
         <dt><%= t("Member since") %></dt><dd><%= formattedDate(currentUser.createdAt) %></dd>
       </dl>
       <form method="post" action="/logout">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="button button-secondary" type="submit"><%= t("Log out") %></button>
       </form>
-      <% if (currentUser.role === 'organizer') { %>
+      <p><%= t('One account lets you share food and reserve food from others.') %></p>
+      <% if (memberships.length) { %>
         <section class="detail-section"><h2><%= t("Organization access") %></h2>
-          <% if (!memberships.length) { %><p><%= t("No organization access assigned. Ask an administrator to add your organizer account.") %></p><% } %>
+          <% if (!memberships.length) { %><p><%= t("No organization access assigned. Ask an administrator to grant access.") %></p><% } %>
           <% memberships.forEach(member => { if (member.organization) { %>
             <p><strong><%= member.organization.name %></strong> · <%= t(member.role === 'admin' ? 'Administrator' : 'Volunteer') %></p>
             <a class="text-action" href="/organizer/<%= member.organization._id %>"><%= t("Open organization dashboard") %></a>
           <% } }); %>
         </section>
-        <p class="field-help"><%= t("Organizer accounts cannot reserve food. To receive food, use a separate recipient account with a different email.") %></p>
       <% } %>
     </section>
   <% } else { %>
     <section class="empty-state">
       <h2><%= t("You’re browsing as a guest") %></h2>
-      <p><%= t("Anyone can browse food. Log in or create a recipient account to save reservations.") %></p>
+      <p><%= t("Anyone can browse food. Log in or create an account to share and reserve food.") %></p>
       <a class="button button-primary" href="/login?next=%2Fprofile"><%= t("Log in") %></a>
       <a class="text-action" href="/signup?next=%2Fprofile"><%= t("Create an account") %></a>
     </section>

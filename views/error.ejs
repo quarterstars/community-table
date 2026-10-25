@@ -5,13 +5,8 @@
   <section class="empty-state error-state">
     <h1><%= t(title) %></h1>
     <p class="form-error" role="alert"><%= t(message) %></p>
-    <% if (currentUser && currentUser.role === 'organizer') { %>
-      <a class="button button-primary" href="<%= organizerBase %>"><%= t("Back to organizer dashboard") %></a>
-      <a class="text-action" href="<%= organizerBase %>/pickups"><%= t("Review organization pickups") %></a>
-    <% } else { %>
       <a class="button button-primary" href="/my-pickups"><%= t("Check My Pickups") %></a>
       <a class="text-action" href="/"><%= t("Back to Browse") %></a>
-    <% } %>
   </section>
 </main>
 <%- include('partials/footer') %>

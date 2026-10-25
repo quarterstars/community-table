@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#173f35">
-  <meta name="description" content="Community Table is a student food-sharing app with recipient accounts and persistent reservations for fictional demo listings.">
+  <meta name="description" content="Community Table is a student food-sharing app for sharing food and reserving pickups.">
   <title><%= t(title) %> <%= t("· Community Table") %></title>
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   <link rel="stylesheet" href="/css/styles.css">
@@ -16,7 +16,7 @@
   <div class="app-shell">
     <div class="app-content">
     <header class="app-header">
-      <a class="brand" href="<%= currentUser && currentUser.role === 'organizer' ? '/organizer' : '/' %>" aria-label="<%= t('Community Table home') %>">
+      <a class="brand" href="/" aria-label="<%= t('Community Table home') %>">
         <span class="brand-mark"><%- include('icon', { name: 'table' }) %></span>
         <span><%= t("Community Table") %></span>
       </a>

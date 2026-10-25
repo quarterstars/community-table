@@ -1,15 +1,9 @@
 <% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
-    <% const organizerAccount = currentUser && currentUser.role === 'organizer';
-       const links = organizerAccount ? [
-         [organizerBase, 'dashboard', 'browse', 'Dashboard'],
-         [organizerBase === '/organizer' ? '/organizer' : organizerBase + '/listings', 'listings', 'portions', 'Listings'],
-         [organizerBase === '/organizer' ? '/organizer' : organizerBase + '/pickups', 'pickups', 'bag', 'Pickups'],
-         ['/profile', 'profile', 'user', 'Profile']
-       ] : [['/', 'browse', 'browse', 'Browse'], ['/my-pickups', 'pickups', 'bag', 'My Pickups'], ['/profile', 'profile', 'user', 'Profile']]; %>
+    <% const selectedPage = locals.organization ? 'share' : activePage; const links = [['/', 'browse', 'browse', 'Browse'], ['/share-food', 'share', 'portions', 'Share Food'], ['/my-pickups', 'pickups', 'bag', 'My Pickups'], ['/profile', 'profile', 'user', 'Profile']]; %>
     </div>
-    <nav class="bottom-nav <%= organizerAccount ? 'organizer-nav' : '' %>" aria-label="<%= t('Main navigation') %>">
+    <nav class="bottom-nav organizer-nav" aria-label="<%= t('Main navigation') %>">
       <% for (const [href, key, icon, label] of links) { %>
-        <a href="<%= href %>" class="nav-link <%= activePage === key ? 'is-active' : '' %>" <% if (activePage === key) { %>aria-current="page"<% } %>>
+        <a href="<%= href %>" class="nav-link <%= selectedPage === key ? 'is-active' : '' %>" <% if (selectedPage === key) { %>aria-current="page"<% } %>>
           <span class="nav-icon"><%- include('icon', { name: icon }) %></span><span><%= t(label) %></span>
         </a>
       <% } %>

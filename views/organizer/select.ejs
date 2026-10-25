@@ -6,6 +6,6 @@
   <div class="pickup-list"><% memberships.forEach(member => { if (member.organization) { %>
     <article class="pickup-card"><h2><%= member.organization.name %></h2><p class="organization"><%= t(member.role === 'admin' ? 'Administrator' : 'Volunteer') %></p><a class="text-action" href="/organizer/<%= member.organization._id %>"><%= t("Open organization") %></a></article>
   <% } }); %></div>
-  <% if (!memberships.length) { %><p><%= t("No organization access assigned. Ask an administrator to add this organizer account.") %></p><% } %>
+  <% if (!memberships.length) { %><p><%= t("No organization access assigned. Ask an administrator to grant access.") %></p><% } %>
 </main>
 <%- include('../partials/footer') %>

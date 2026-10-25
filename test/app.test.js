@@ -4,6 +4,9 @@ const { randomUUID, randomBytes } = require('node:crypto');
 const path = require('node:path');
 const ejs = require('ejs');
 const request = require('supertest');
+const fs = require('node:fs/promises');
+const os = require('node:os');
+const sharp = require('sharp');
 const { MongoMemoryReplSet } = require('mongodb-memory-server');
 const { connectDatabase } = require('../src/db');
 const { createApp } = require('../src/app');
@@ -11,12 +14,12 @@ const { sampleFoods } = require('../src/data/sample-foods');
 const { seedDemo } = require('../scripts/seed-demo');
 const { pickupPresentation } = require('../src/lib/presentation');
 
-let replicaSet, database, app, uri;
+let replicaSet, database, app, uri, uploadDirectory;
 // Atlas limits database names to 38 bytes; retain 64 random bits for isolation.
 const databaseName = `community_table_test_${randomBytes(8).toString('hex')}`;
 const sessionSecret = randomBytes(32).toString('hex');
 const password = 'Community-table-test-934!';
-function newApp(extra = {}) { return createApp({ ...database, sessionSecret, loginLimit: 100, signupLimit: 100, ...extra }); }
+function newApp(extra = {}) { return createApp({ ...database, sessionSecret, loginLimit: 100, signupLimit: 100, uploadDirectory, ...extra }); }
 function field(html, name) {
   const found = html.match(new RegExp(`name="${name}" value="([^"]+)"`));
   assert.ok(found, `Form should contain ${name}`);
@@ -38,9 +41,9 @@ async function listing(extra = {}) {
 }
 async function reservationForm(agent, food) {
   const response = await agent.get(`/foods/${food.slug}`).expect(200);
-  return { _csrf: field(response.text, '_csrf'), requestKey: field(response.text, 'requestKey'), quantity: '1' };
+  return { _csrf: field(response.text, '_csrf'), requestKey: field(response.text, 'requestKey'), quantity: '1', confirm: 'reserve' };
 }
-const reserve = (agent, food, form) => agent.post(`/foods/${food.slug}/reserve`).type('form').send(form);
+const reserve = (agent, food, form) => agent.post(`/foods/${food.slug}/reserve`).type('form').send({ confirm: 'reserve', ...form });
 async function remaining(food) { return (await database.models.Listing.findById(food._id)).availablePortions; }
 
 before(async () => {
@@ -55,6 +58,7 @@ before(async () => {
   }
   database = await connectDatabase(uri, { dbName: databaseName });
   assert.equal(database.connection.name, databaseName);
+  uploadDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'community-table-personal-test-'));
   app = newApp();
   console.log(`Real MongoDB replica-set tests use isolated database ${databaseName}.`);
 }, { timeout: 180000 });
@@ -80,6 +84,7 @@ after(async () => {
     await database.connection.close();
   }
   if (replicaSet) await replicaSet.stop();
+  if (uploadDirectory) await fs.rm(uploadDirectory, { recursive: true, force: true });
 });
 
 test('signup hashes passwords, normalizes email, ignores role escalation, rotates sessions, and logs out', async () => {
@@ -90,7 +95,7 @@ test('signup hashes passwords, normalizes email, ignores role escalation, rotate
   const response = await agent.post('/signup').type('form').send({ name: 'Demo Recipient', email: '  DEMO@example.test  ', password, role: 'admin', _csrf: oldToken }).expect(303);
   assert.notEqual(response.headers['set-cookie'][0].split(';')[0], anonymousCookie);
   const user = await database.models.User.findOne({ email: 'demo@example.test' }).select('+passwordHash');
-  assert.equal(user.role, 'recipient');
+  assert.equal(user.role, 'member');
   assert.match(user.passwordHash, /^scrypt:32768:8:3:[a-f0-9]{32}:[a-f0-9]{128}$/);
   assert.ok(!user.passwordHash.includes(password));
   const profile = await agent.get('/profile').expect(200);
@@ -531,4 +536,128 @@ test('misir-only photo correction preserves inventory, snapshots and all other l
     assert.ok(about.text.includes('Andy Li')); assert.ok(about.text.includes(current.source)); assert.ok(about.text.includes(current.licenseUrl));
   }
   for(const photo of photos.filter(photo => photo.listingId !== misir.slug)) for(const [file,record] of Object.entries(photo.files)) assert.equal(createHash('sha256').update(fs.readFileSync(path.join(__dirname,'../public/images/foods',file))).digest('hex'), record.sha256);
+});
+
+function personalBody(extra = {}) {
+  return { name: 'Fictional lentil lunch', description: 'A recording example.', portionSize: 'One sealed cup', ingredients: 'Lentils, onion, oil', allergenStatus: 'unknown', totalPortions: '5', perAccountLimit: '3', pickupStartsAt: require('../src/lib/chicago-time').chicagoInput(new Date(Date.now() - 3600000)), pickupEndsAt: require('../src/lib/chicago-time').chicagoInput(new Date(Date.now() + 7200000)), pickupLocation: 'Fictional demo table', pickupInstructions: 'Show your code. No real pickup.', status: 'open', confirm: 'post', ...extra };
+}
+async function postPersonal(agent, extra = {}, photo = true) {
+  const csrf = await token(agent, '/profile');
+  const buffer = photo && await sharp({ create: { width: 12, height: 12, channels: 3, background: 'green' } }).png().toBuffer();
+  const form = agent.post('/share-food/listings');
+  for (const [key, value] of Object.entries({ _csrf: csrf, ...personalBody(extra) })) form.field(key, value);
+  if (photo) form.attach('foodPhoto', buffer, 'untrusted.png');
+  return form;
+}
+test('one public account can post and receive; owners cannot self-reserve, forge ownership, or manage another listing/pickup', async () => {
+  const a = request.agent(app), b = request.agent(app), outsider = request.agent(app);
+  const accountA = await signup(a), accountB = await signup(b); await signup(outsider);
+  assert.equal((await postPersonal(a, { owner: String(accountB.user._id), organizationId: String(accountB.user._id) })).status, 303);
+  const first = await database.models.Listing.findOne({ owner: accountA.user._id });
+  assert.ok(first); assert.equal(first.organizationId, undefined); assert.equal(first.eventId, undefined); assert.equal(first.isDemo, false);
+  assert.equal(first.allergens, null); assert.equal(first.totalPortions, 5); assert.equal(first.availablePortions, 5);
+  await a.get('/share-food').expect(200); await a.get(`/share-food/listings/${first._id}/edit`).expect(200);
+  await a.post(`/foods/${first.slug}/reserve`).type('form').send({ _csrf: accountA.csrf, requestKey: randomUUID(), quantity: '1', confirm: 'reserve' }).expect(403);
+  await b.get(`/share-food/listings/${first._id}/edit`).expect(404);
+  await b.post(`/share-food/listings/${first._id}`).type('form').send({ _csrf: accountB.csrf, ...personalBody({ revision: '0' }), owner: String(accountB.user._id) }).expect(404);
+  await b.post(`/share-food/listings/${first._id}/pause`).type('form').send({ _csrf: accountB.csrf, action: 'pause' }).expect(404);
+  const saved = await reserve(b, first, await reservationForm(b, first)).expect(303);
+  const row = await database.models.Reservation.findOne({ listing: first._id });
+  await a.get(saved.headers.location).expect(404);
+  await a.post(`${saved.headers.location}/cancel`).type('form').send({ _csrf: accountA.csrf }).expect(404);
+  await outsider.get(`/share-food/pickups/${row._id}`).expect(404);
+  const outsiderCsrf = await token(outsider, '/profile');
+  await outsider.post(`/share-food/pickups/${row._id}/confirm`).type('form').send({ _csrf: outsiderCsrf, confirm: 'collected' }).expect(404);
+  await b.get(`/share-food/pickups/${row._id}`).expect(404);
+  await a.get(`/share-food/pickups/${row._id}`).expect(200);
+  assert.equal((await postPersonal(b)).status, 303);
+  const second = await database.models.Listing.findOne({ owner: accountB.user._id });
+  await reserve(a, second, await reservationForm(a, second)).expect(303);
+  assert.equal(await remaining(first), 4); assert.equal(await remaining(second), 4);
+  const responses = await Promise.all(Array.from({ length: 5 }, () => a.post(`/share-food/pickups/${row._id}/confirm`).type('form').send({ _csrf: accountA.csrf, confirm: 'collected' })));
+  assert.equal(responses.filter(result => result.status === 303).length, 1);
+  assert.equal(responses.filter(result => result.status === 409).length, 4);
+  assert.equal(await remaining(first), 4);
+  assert.equal(String((await database.models.Reservation.findById(row._id)).collectedBy), String(accountA.user._id));
+  await b.post(`${saved.headers.location}/cancel`).type('form').send({ _csrf: accountB.csrf }).expect(409);
+});
+
+test('posting/reserving requires login and explicit confirmation; signup returns to the intended page without writing food', async () => {
+  const guest = request.agent(app), food = await listing();
+  const _csrf = await token(guest);
+  await guest.post('/share-food/listings').type('form').send({ _csrf, ...personalBody() }).expect(303).expect('Location', '/login?next=%2Fshare-food');
+  const multipart = await postPersonal(guest);
+  assert.equal(multipart.status, 303);
+  await reserve(guest, food, { _csrf, requestKey: randomUUID(), quantity: '1' }).expect(303);
+  assert.equal(await database.models.Reservation.countDocuments(), 0);
+  assert.equal(await database.models.Listing.countDocuments(), 1);
+  await signup(guest, 'intended@example.test', { next: '/share-food/listings/new', role: 'organizer', organizationId: '000000000000000000000001' });
+  await guest.get('/share-food/listings/new').expect(200);
+  assert.equal(await database.models.Membership.countDocuments(), 0);
+  assert.equal((await postPersonal(guest, { confirm: '' })).status, 422);
+  assert.equal((await postPersonal(guest, {}, false)).status, 422);
+  const form = await reservationForm(guest, food);
+  await reserve(guest, food, { ...form, confirm: '' }).expect(422);
+  assert.equal(await remaining(food), 8);
+  assert.equal(await database.models.Reservation.countDocuments(), 0);
+  // Invalid return paths cannot become external redirects or mutation routes.
+  const { safeNext } = require('../src/middleware/security');
+  for (const value of ['//evil.test', '/\\evil.test', '/foods/a/reserve', '/share-food/listings', '/%2f%2fevil.test']) assert.equal(safeNext(value), '/');
+  assert.equal(safeNext('/share-food/listings/new'), '/share-food/listings/new');
+});
+
+test('personal pause, inventory edits and concurrent cancellation preserve commitments and photos', async () => {
+  const owner = request.agent(app), receiver = request.agent(app);
+  const a = await signup(owner); await signup(receiver);
+  assert.equal((await postPersonal(owner)).status, 303);
+  let food = await database.models.Listing.findOne({ owner: a.user._id });
+  const form = { ...await reservationForm(receiver, food), quantity: '2' };
+  const saved = await reserve(receiver, food, form).expect(303);
+  await owner.post(`/share-food/listings/${food._id}/pause`).type('form').send({ _csrf: a.csrf, action: 'pause' }).expect(303);
+  const other = request.agent(app); await signup(other);
+  await reserve(other, food, { _csrf: await token(other, '/profile'), requestKey: randomUUID(), quantity: '1' }).expect(410);
+  food = await database.models.Listing.findById(food._id);
+  const image = food.image;
+  const url = `/share-food/listings/${food._id}`;
+  await owner.post(url).type('form').send({ _csrf: a.csrf, ...personalBody({ revision: '0' }) }).expect(409);
+  await owner.post(url).type('form').send({ _csrf: a.csrf, ...personalBody({ revision: String(food.revision), totalPortions: '1' }) }).expect(422);
+  await owner.post(url).type('form').send({ _csrf: a.csrf, ...personalBody({ revision: String(food.revision), totalPortions: '7' }) }).expect(303);
+  assert.equal(await remaining(food), 5);
+  const results = await Promise.all(Array.from({ length: 5 }, () => receiver.post(`${saved.headers.location}/cancel`).type('form').send({ _csrf: form._csrf })));
+  assert.ok(results.every(result => result.status === 303));
+  assert.equal(await remaining(food), 7);
+  assert.equal((await database.models.Listing.findById(food._id)).image, image);
+  await reserve(receiver, food, form).expect(303); assert.equal(await remaining(food), 7);
+  // Legacy organization linking must leave personal listings/reservations alone.
+  await require('../src/services/development').migrateOrganizations(database);
+  assert.equal((await database.models.Listing.findById(food._id)).organizationId, undefined);
+  assert.equal((await database.models.Reservation.findOne()).organizationId, undefined);
+});
+
+test('recording preparation updates only fictional sample windows and adds stock without changing commitments/history', async () => {
+  const { prepareRecording, recordingWindow } = require('../scripts/prepare-recording');
+  await seedDemo(database.models);
+  const agent = request.agent(app); await signup(agent);
+  const food = await database.models.Listing.findOne({ slug: sampleFoods[0].id });
+  await reserve(agent, food, { ...await reservationForm(agent, food), quantity: '2' }).expect(303);
+  const unrelated = await listing({ isDemo: false });
+  const oldUnrelated = await database.models.Listing.findById(unrelated._id).lean();
+  const before = await database.models.Listing.findById(food._id).lean();
+  const history = await database.models.Reservation.find().lean(), users = await database.models.User.find().select('+passwordHash').lean();
+  const now = new Date('2026-10-25T18:00:00Z');
+  const result = await prepareRecording(database, { now });
+  assert.equal(result.changes.find(row => row.slug === food.slug).addedPortions, 2);
+  const updated = await database.models.Listing.findById(food._id);
+  assert.equal(updated.totalPortions, before.totalPortions + 2); assert.equal(updated.availablePortions, before.availablePortions + 2);
+  assert.equal(updated.totalPortions - updated.availablePortions, 2);
+  assert.equal(updated.image, before.image); assert.equal(String(updated._id), String(before._id));
+  assert.equal(updated.pickupStartsAt.toISOString(), '2026-10-25T05:00:00.000Z');
+  assert.equal(updated.pickupEndsAt.toISOString(), '2026-10-27T04:59:00.000Z');
+  assert.ok((await prepareRecording(database, { now })).changes.every(row => row.addedPortions === 0));
+  assert.deepEqual(await database.models.Reservation.find().lean(), history);
+  assert.deepEqual(await database.models.User.find().select('+passwordHash').lean(), users);
+  assert.deepEqual(await database.models.Listing.findById(unrelated._id).lean(), oldUnrelated);
+  const dst = recordingWindow(new Date('2026-11-01T18:00:00Z'));
+  assert.equal(dst.pickupStartsAt.toISOString(), '2026-11-01T05:00:00.000Z');
+  assert.equal(dst.pickupEndsAt.toISOString(), '2026-11-03T05:59:00.000Z');
 });

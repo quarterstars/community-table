@@ -18,17 +18,17 @@ async function main() {
   const args = {};
   for (let index = 2; index < process.argv.length; index += 2) {
     const key = process.argv[index];
-    if (!['--email', '--slug', '--name', '--account-name'].includes(key) || !process.argv[index + 1]) throw new HttpError(422, 'Usage: npm run dev:organizer -- --email separate-organizer@example.test [--account-name "Organizer name"] [--slug demo-slug] [--name "Fictional organization name"]');
+    if (!['--email', '--slug', '--name', '--account-name'].includes(key) || !process.argv[index + 1]) throw new HttpError(422, 'Usage: npm run dev:organizer -- --email demo-account@example.test [--account-name "Organizer name"] [--slug demo-slug] [--name "Fictional organization name"]');
     args[key === '--account-name' ? 'accountName' : key.slice(2)] = process.argv[index + 1];
   }
-  if (!args.email) throw new HttpError(422, 'Provide --email for a separate organizer account, different from any recipient email.');
+  if (!args.email) throw new HttpError(422, 'Provide --email for the account receiving this explicit fictional admin grant.');
   const config = readConfig();
   const database = await connectDatabase(config.mongoUri);
   try {
     const existing = await database.models.User.findOne({ email: args.email.trim().toLowerCase() }).select('role').lean();
     if (!existing) args.password = process.env.DEV_ORGANIZER_PASSWORD || await passwordPrompt();
     await grantDevelopmentAdmin(database, { ...args, production: config.production });
-    console.log('Dedicated organizer account ready; admin membership granted. Log in and open /organizer. Recipient accounts and history were not changed.');
+    console.log('Explicit fictional admin membership granted. Open Share Food. Existing account passwords and reservation history were preserved.');
   } finally { await database.connection.close(); }
 }
 if (require.main === module) main().catch(error => { console.error(error instanceof HttpError ? error.message : 'Organizer setup failed. Check configuration and MongoDB authentication.'); process.exitCode = 1; });

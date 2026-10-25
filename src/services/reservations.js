@@ -19,10 +19,9 @@ function replay(existing, listingSlug, quantity) {
 
 function createReservationService({ connection, models }) {
   const { Listing, Reservation, Event, User } = models;
-  async function requireRecipient(userId, session) {
-    // Serialize reservations with explicit account-type migration.
-    const user = await User.findOneAndUpdate({ _id: userId, role: 'recipient' }, { $inc: { accessVersion: 1 } }, { session, new: true }).lean();
-    if (!user) throw new HttpError(403, 'Reservations require a recipient account. Organizer accounts cannot reserve or cancel recipient pickups.');
+  async function requireUser(userId, session) {
+    const user = await User.findOneAndUpdate({ _id: userId }, { $inc: { accessVersion: 1 } }, { session, new: true }).lean();
+    if (!user) throw new HttpError(403, 'Log in to reserve.');
     return user;
   }
   async function reserve({ userId, listingSlug, quantity, requestKey }) {
@@ -32,13 +31,17 @@ function createReservationService({ connection, models }) {
       const pickupCode = randomBytes(16).toString('hex').toUpperCase();
       try {
         return await connection.transaction(async (session) => {
-          await requireRecipient(userId, session);
+          await requireUser(userId, session);
           const existing = await Reservation.findOne({ user: userId, requestKey }).session(session).lean();
           if (existing) return replay(existing, listingSlug, quantity);
           const listing = await Listing.findOne({ slug: listingSlug }).session(session).lean();
           if (!listing) throw new HttpError(404, 'That food listing could not be found.');
+          if (String(listing.owner) === String(userId)) throw new HttpError(403, 'You cannot reserve your own listing.');
           const now = new Date();
           if (listing.status !== 'open' || listing.pickupEndsAt <= now) throw new HttpError(410, 'This listing is paused, closed, or its pickup window has ended.');
+          // Detect an active duplicate before the lifetime portion limit. Previously
+          // 2 existing + 2 requested exceeded limit 3 and incorrectly returned 422.
+          if (await Reservation.exists({ user: userId, listing: listing._id, status: 'active' }).session(session)) throw new HttpError(409, 'You already have a reservation for this listing. Check My Pickups.');
           const commitments = await Reservation.find({ user: userId, listing: listing._id, status: { $in: ['active', 'collected', 'missed'] } }).select('quantity').session(session).lean();
           const committedQuantity = commitments.reduce((sum, row) => sum + row.quantity, 0);
           if (quantity + committedQuantity > listing.perAccountLimit) throw new HttpError(422, `The limit for this listing is ${listing.perAccountLimit} portions per account.`);
@@ -82,7 +85,7 @@ function createReservationService({ connection, models }) {
   async function cancel({ userId, reservationId }) {
     if (!/^[a-f0-9]{24}$/i.test(reservationId)) throw new HttpError(404, 'Reservation not found.');
     return connection.transaction(async (session) => {
-      await requireRecipient(userId, session);
+      await requireUser(userId, session);
       const reservation = await Reservation.findOne({ _id: reservationId, user: userId }).session(session).lean();
       if (!reservation) throw new HttpError(404, 'Reservation not found.');
       if (reservation.status === 'cancelled') return reservation;

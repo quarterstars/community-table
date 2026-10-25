@@ -1,12 +1,8 @@
 <% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
 <%- include('partials/header') %>
 <main id="main-content" class="page details-page">
-  <% if (currentUser && currentUser.role === 'organizer') { %>
-    <a class="back-link" href="<%= organizerBase === '/organizer' ? '/organizer' : organizerBase + '/listings' %>"><%- include('partials/icon', { name: 'left' }) %> <%= t("Back to Listings") %></a>
-  <% } else { %>
     <a class="back-link" href="/"><%- include('partials/icon', { name: 'left' }) %> <%= t("Back to Browse") %></a>
-  <% } %>
-  <div class="detail-heading"><h1><%= t("Food details") %></h1><span class="sample-label"><%= t("Sample listing") %></span></div>
+  <div class="detail-heading"><h1><%= t("Food details") %></h1><% if (food.isDemo) { %><span class="sample-label"><%= t("Sample listing") %></span><% } %></div>
 
   <%- include('partials/food-image', { food, thumbnail: false, priority: true }) %>
 
@@ -36,7 +32,7 @@
   <section class="allergen-notice" aria-labelledby="allergens-heading">
     <h2 id="allergens-heading"><%- include('partials/icon', { name: 'info' }) %> <%= t("Organizer-reported allergens") %></h2>
     <p><%= t(typeof food.allergens === 'string' && food.allergens.trim() ? food.allergens : 'Unknown — not provided by the organizer.') %></p>
-    <p class="allergen-source"><%= t("Sample organizer information, not independently verified.") %></p>
+    <p class="allergen-source"><%= t("Shared information, not independently verified.") %></p>
   </section>
   <section class="detail-section pickup-instructions" aria-labelledby="pickup-heading">
     <h2 id="pickup-heading"><%= t("Pickup instructions") %></h2>
@@ -49,8 +45,8 @@
       <div><h2 id="quantity-heading"><%= t("Available quantity") %></h2><p><%= food.availablePortions %> <%= t("portions available") %></p></div>
       <span class="free-badge"><%= t("Free") %></span>
     </div>
-    <% if (currentUser && currentUser.role === 'organizer') { %>
-      <p class="reservation-note"><%= t("Organizer accounts manage distribution and cannot reserve food. Use a separate recipient account with a different email to receive food.") %></p>
+    <% if (locals.ownListing) { %>
+      <p class="reservation-note"><%= t("You cannot reserve your own listing.") %></p><a class="text-action" href="/share-food"><%= t('Manage your listing') %></a>
     <% } else if (existingReservation) { %>
       <p class="reservation-note"><%= t("You have reserved") %> <%= existingReservation.quantity %> <%= t("portions from this listing.") %></p>
       <a class="button button-primary" href="/reservations/<%= existingReservation.id %>"><%= t("View your reservation") %></a>
@@ -69,11 +65,12 @@
     <p id="quantity-limit" class="quantity-limit"><%= t("Choose 1–") %><%= quantityMaximum %> <%= t("portions. One active reservation per account for this listing.") %></p>
     <p class="sr-only" aria-live="polite" aria-atomic="true" data-quantity-announcement><%= t("1 portion selected.") %></p>
     <% if (currentUser) { %>
+      <label class="confirmation-check"><input type="checkbox" name="confirm" value="reserve" required> <%= t('I confirm this quantity and pickup window.') %></label>
       <button class="button button-primary reserve-submit" type="submit" aria-describedby="reservation-note"><%= t("Reserve food") %></button>
       <p id="reservation-note" class="reservation-note"><%= t("You can cancel before the pickup window ends. Your pickup code will appear in My Pickups.") %></p>
     <% } else { %>
       <a class="button button-primary reserve-submit" href="/login?next=<%= encodeURIComponent('/foods/' + food.id) %>"><%= t("Log in to reserve") %></a>
-      <p class="reservation-note"><%= t("A recipient account is required to save a reservation.") %></p>
+      <p class="reservation-note"><%= t("An account is required to save a reservation.") %></p>
     <% } %>
     </form>
     <% } else { %>

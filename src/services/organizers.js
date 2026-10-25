@@ -19,13 +19,13 @@ function eventFields(body) {
   if (!['open', 'paused', 'closed'].includes(body.status)) throw new HttpError(422, 'Choose an open, paused, or closed status.');
   return { title: text(body, 'title', 150), description: text(body, 'description', 2000, false), pickupStartsAt, pickupEndsAt, pickupLocation: text(body, 'pickupLocation', 300), pickupInstructions: text(body, 'pickupInstructions', 3000), status: body.status };
 }
-function listingFields(body) {
+function listingFields(body, personal = false) {
   const fields = eventFields({ ...body, title: body.name });
   delete fields.title;
-  if (!validId(body.eventId)) throw new HttpError(422, 'Choose an event belonging to this organization.');
+  if (!personal && !validId(body.eventId)) throw new HttpError(422, 'Choose an event belonging to this organization.');
   if (!['unknown', 'reported'].includes(body.allergenStatus)) throw new HttpError(422, 'Specify whether allergen information is unknown or reported.');
   const ingredients = text(body, 'ingredients', 2000, false).split(String(body.ingredients || '').includes('\n') ? /\n/ : /[,፣]/).map(value => value.trim()).filter(Boolean);
-  return { ...fields, eventId: body.eventId.toLowerCase(), name: text(body, 'name', 150), description: text(body, 'description', 2000), portionSize: text(body, 'portionSize', 300), ingredients, allergens: body.allergenStatus === 'reported' ? text(body, 'allergens', 2000) : null, totalPortions: number(body, 'totalPortions'), perAccountLimit: number(body, 'perAccountLimit') };
+  return { ...fields, ...(!personal ? { eventId: body.eventId.toLowerCase() } : {}), name: text(body, 'name', 150), description: text(body, 'description', 2000), portionSize: text(body, 'portionSize', 300), ingredients, allergens: body.allergenStatus === 'reported' ? text(body, 'allergens', 2000) : null, totalPortions: number(body, 'totalPortions'), perAccountLimit: number(body, 'perAccountLimit') };
 }
 
 function createOrganizerService({ connection, models }) {
@@ -47,6 +47,7 @@ function createOrganizerService({ connection, models }) {
     }, transactionOptions);
   }
   async function saveListing(actor, body, id, photo = null) {
+    if (!id && body.confirm !== 'post') throw new HttpError(422, 'Confirm your food listing before posting.');
     const fields = listingFields(body);
     const amFields = [['name', 'amName', 150], ['description', 'amDescription', 2000], ['portionSize', 'amPortionSize', 300], ['ingredients', 'amIngredients', 2000], ['allergens', 'amAllergens', 2000], ['pickupLocation', 'amPickupLocation', 300], ['pickupInstructions', 'amPickupInstructions', 3000]];
     const suppliedAmharic = amFields.some(([, key]) => Object.hasOwn(body, key));
@@ -70,7 +71,8 @@ function createOrganizerService({ connection, models }) {
       const organization = await Organization.findById(actor.organizationId).session(session).lean();
       if (!organization) throw new HttpError(404, 'Organization not found.');
       if (!id) {
-        return (await Listing.create([{ ...fields, ...translatedFields(), organization: organization.name, organizationId: organization._id, availablePortions: fields.totalPortions, slug: `food-${randomUUID()}`, image: '/images/food-placeholder.svg', imageAlt: 'Neutral food placeholder; no photograph is available', imageType: 'placeholder', ...(photo || {}), isDemo: organization.isDemo }], { session }))[0].toObject();
+        if (!photo) throw new HttpError(422, 'Add a photo before posting food.');
+        return (await Listing.create([{ ...fields, ...translatedFields(), owner: actor.userId, organization: organization.name, organizationId: organization._id, availablePortions: fields.totalPortions, slug: `food-${randomUUID()}`, ...photo, isDemo: organization.isDemo }], { session }))[0].toObject();
       }
       const listing = await Listing.findOne({ _id: id, organizationId: actor.organizationId }).session(session).lean();
       if (!listing) throw new HttpError(404, 'Listing not found.');
@@ -99,15 +101,15 @@ function createOrganizerService({ connection, models }) {
       await authorize(actor, ['admin'], session);
       const user = await User.findOne({ _id: selected.userId, email: selected.email }).session(session).lean();
       if (!user) throw new HttpError(404, 'The selected registered account no longer exists.');
-      if (user.role !== 'organizer') throw new HttpError(409, 'Only organizer accounts can become volunteers. Use a separate organizer account with a different email.');
-      await User.updateOne({ _id: user._id, role: 'organizer' }, { $inc: { accessVersion: 1 } }, { session });
+      await User.updateOne({ _id: user._id }, { $inc: { accessVersion: 1 } }, { session });
       const member = await Membership.findOne({ organization: actor.organizationId, user: user._id }).session(session).lean();
       if (member?.role === 'admin') throw new HttpError(409, 'Volunteer management cannot change an administrator’s access.');
       if (operation === 'remove') {
         if (!member) throw new HttpError(404, 'That account is not a volunteer for this organization.');
         await Membership.deleteOne({ _id: member._id, role: 'volunteer' }, { session });
       } else if (operation === 'add') {
-        if (!member) await Membership.create([{ organization: actor.organizationId, user: user._id, role: 'volunteer' }], { session });
+        if (!member) await Membership.create([{ organization: actor.organizationId, user: user._id, role: 'volunteer', accessGranted: true }], { session });
+        else await Membership.updateOne({ _id: member._id }, { $set: { accessGranted: true }, $inc: { actionVersion: 1 } }, { session });
       } else throw new HttpError(422, 'Choose add or remove.');
     }, transactionOptions);
   }
@@ -131,4 +133,4 @@ function createOrganizerService({ connection, models }) {
   }
   return { saveEvent, saveListing, setPaused, changeVolunteer, confirmPickup };
 }
-module.exports = { createOrganizerService, validId };
+module.exports = { createOrganizerService, validId, listingFields, number };

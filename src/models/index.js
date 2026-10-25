@@ -6,7 +6,8 @@ function createModels(connection) {
     name: { type: String, required: true, trim: true, minlength: 2, maxlength: 80 },
     email: { type: String, required: true, trim: true, lowercase: true, maxlength: 254 },
     passwordHash: { type: String, required: true, select: false },
-    role: { type: String, enum: ['recipient', 'organizer'], default: 'recipient', required: true },
+    // Legacy values remain stored; personal sharing/receiving never depends on role.
+    role: { type: String, enum: ['member', 'recipient', 'organizer'], default: 'member', required: true },
     accessVersion: { type: Number, default: 0 },
     needsFoodSupport: { type: Boolean, default: false, select: false }
   }, { timestamps: true });
@@ -22,6 +23,8 @@ function createModels(connection) {
     organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     role: { type: String, enum: ['admin', 'volunteer'], required: true },
+    // Explicit grants enable one membership, including quarantined legacy recipients.
+    accessGranted: { type: Boolean, default: false },
     actionVersion: { type: Number, default: 0 }
   }, { timestamps: true });
   membershipSchema.index({ organization: 1, user: 1 }, { unique: true });
@@ -61,6 +64,7 @@ function createModels(connection) {
     name: { type: String, required: true, maxlength: 150 },
     organization: { type: String, required: true, maxlength: 150 },
     organizationId: { type: Schema.Types.ObjectId, ref: 'Organization' },
+    owner: { type: Schema.Types.ObjectId, ref: 'User' },
     eventId: { type: Schema.Types.ObjectId, ref: 'Event' },
     revision: { type: Number, min: 0, default: 0, validate: integer },
     category: String,
@@ -78,6 +82,7 @@ function createModels(connection) {
     priorityEnabled: { type: Boolean, default: false },
     priorityOpensAt: Date,
     generalOpensAt: Date,
+    demoStockDate: String,
     pickupStartsAt: { type: Date, required: true },
     pickupEndsAt: { type: Date, required: true },
     pickupLocation: { type: String, required: true },
@@ -88,6 +93,7 @@ function createModels(connection) {
   listingSchema.index({ slug: 1 }, { unique: true });
   listingSchema.index({ status: 1, pickupEndsAt: 1 });
   listingSchema.index({ organizationId: 1, eventId: 1 });
+  listingSchema.index({ owner: 1, createdAt: -1 });
   listingSchema.pre('validate', function () {
     if (this.availablePortions > this.totalPortions) this.invalidate('availablePortions', 'Inventory exceeds total portions.');
     if (this.pickupEndsAt <= this.pickupStartsAt) this.invalidate('pickupEndsAt', 'Pickup must end after it starts.');

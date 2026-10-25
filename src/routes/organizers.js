@@ -1,8 +1,8 @@
 const express = require('express');
 const { randomUUID } = require('node:crypto');
-const { requireAccountType, csrfProtection } = require('../middleware/security');
+const { requireLogin, csrfProtection } = require('../middleware/security');
 const { parseFoodPhoto, saveFoodPhoto } = require('../lib/food-uploads');
-const { createInvitationService } = require('../services/accounts');
+const { createInvitationService, membershipAccess } = require('../services/accounts');
 const { HttpError } = require('../lib/errors');
 const { createOrganizerService, validId } = require('../services/organizers');
 const { chicagoInput } = require('../lib/chicago-time');
@@ -13,15 +13,15 @@ function createOrganizerRoutes(database) {
   const { Membership, Organization, Event, Listing, Reservation, User } = database.models;
   const service = createOrganizerService(database);
   const invitations = createInvitationService(database);
-  router.use('/organizer', requireAccountType('organizer'));
+  router.use('/organizer', requireLogin);
   router.get('/organizer', async (req, res) => {
-    const memberships = await Membership.find({ user: req.user._id }).populate('organization').lean();
+    const memberships = await Membership.find({ user: req.user._id, ...membershipAccess(req.user) }).populate('organization').lean();
     if (memberships.length === 1 && memberships[0].organization) return res.redirect(303, `/organizer/${memberships[0].organization._id}`);
     res.render('organizer/select', { title: 'Organizations', activePage: 'dashboard', memberships });
   });
   router.use('/organizer/:organizationId', async (req, res, next) => {
     if (!validId(req.params.organizationId)) throw new HttpError(404, 'Organization not found.');
-    const membership = await Membership.findOne({ organization: req.params.organizationId, user: req.user._id, role: { $in: ['admin', 'volunteer'] } }).lean();
+    const membership = await Membership.findOne({ organization: req.params.organizationId, user: req.user._id, role: { $in: ['admin', 'volunteer'] }, ...membershipAccess(req.user) }).lean();
     if (!membership) throw new HttpError(403, 'You do not have access to this organization.');
     const organization = await Organization.findById(req.params.organizationId).lean();
     if (!organization) throw new HttpError(404, 'Organization not found.');
@@ -101,7 +101,6 @@ function createOrganizerRoutes(database) {
     if (typeof req.body.email !== 'string' || req.body.email.length > 254 || !['add', 'remove'].includes(req.body.operation)) throw new HttpError(422, 'Enter an exact registered email and choose add or remove.');
     const user = await User.findOne({ email: req.body.email.trim().toLowerCase() }).select('name email role').lean();
     if (!user) throw new HttpError(404, 'No registered account matches that exact email.');
-    if (user.role !== 'organizer') throw new HttpError(409, 'This is a recipient account. Invite a different email for a separate organizer account.');
     const selected = { userId: user._id.toString(), email: user.email, name: user.name, operation: req.body.operation, token: randomUUID(), expiresAt: Date.now() + 10 * 60 * 1000 };
     req.session.volunteerSelection = { ...selected, organizationId: req.organizer.organizationId.toString() };
     res.render('organizer/volunteers', { title: 'Confirm selected account', volunteers: [], selected, notice: '' });

@@ -1,7 +1,7 @@
 <% const t = typeof locals.t === 'function' ? locals.t : value => String(value ?? ''); const lang = locals.lang || 'en'; %>
 <%- include('partials/header') %>
 <main id="main-content" class="page">
-  <div class="page-intro"><h1><%= t(mode === 'signup' ? 'Create a recipient account' : 'Log in') %></h1></div>
+  <div class="page-intro"><h1><%= t(mode === 'signup' ? 'Create an account' : 'Log in') %></h1></div>
   <% if (error) { %><p class="form-error" role="alert"><%= t(error) %></p><% } %>
   <form class="account-form" method="post" action="/<%= mode %>">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -14,7 +14,7 @@
     <input id="email" name="email" type="email" autocomplete="email" maxlength="254" value="<%= email %>" required>
     <label for="password"><%= t("Password") %></label>
     <input id="password" name="password" type="password" autocomplete="<%= mode === 'signup' ? 'new-password' : 'current-password' %>" <%- mode === 'signup' ? 'minlength="12"' : '' %> maxlength="128" required <% if (mode === 'signup') { %>aria-describedby="password-help"<% } %>>
-    <% if (mode === 'signup') { %><p id="password-help" class="field-help"><%= t("Use 12–128 characters. Public signup creates a recipient account.") %></p><% } %>
+    <% if (mode === 'signup') { %><p id="password-help" class="field-help"><%= t("Use 12–128 characters.") %> <%= t('One account lets you share food and reserve food from others.') %></p><% } %>
     <button class="button button-primary" type="submit"><%= t(mode === 'signup' ? 'Create account' : 'Log in') %></button>
   </form>
   <a class="text-action" href="/<%= mode === 'signup' ? 'login' : 'signup' %>?next=<%= encodeURIComponent(nextDestination) %>"><%= t(mode === 'signup' ? 'Already have an account? Log in' : 'Need an account? Sign up') %></a>

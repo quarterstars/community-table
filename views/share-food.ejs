@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+<main id="main-content" class="page">
+  <div class="page-intro"><h1><%= t('Share Food') %></h1></div>
+  <% if (!currentUser) { %>
+    <section class="empty-state"><h2><%= t('Share food with your community') %></h2><p><%= t('One account lets you share food and reserve food from others.') %></p><a class="button button-primary" href="/login?next=%2Fshare-food%2Flistings%2Fnew"><%= t('Log in to share') %></a></section>
+  <% } else { %>
+    <a class="button button-primary" href="/share-food/listings/new"><%= t('Post food') %></a>
+    <% if (memberships.length) { %><section class="detail-section"><h2><%= t('Church / team management') %></h2><% memberships.forEach(member => { if (member.organization) { %><a class="text-action" href="/organizer/<%= member.organization._id %>"><%= member.organization.name %> · <%= t(member.role === 'admin' ? 'Administrator' : 'Volunteer') %></a><% } }); %></section><% } %>
+    <section class="detail-section"><h2><%= t('Your food listings') %></h2>
+      <% if (!listings.length) { %><p><%= t('You have not shared any food yet.') %></p><% } %>
+      <% listings.forEach(food => { %>
+        <article class="pickup-card">
+          <h3><%= food.name %></h3><p><%= food.availablePortions %> <%= t('portions available') %> · <%= t(food.status) %></p>
+          <a class="text-action" href="/foods/<%= food.slug %>"><%= t('View details') %></a>
+          <a class="text-action" href="/share-food/listings/<%= food._id %>/edit"><%= t('Edit food listing') %></a>
+          <form method="post" action="/share-food/listings/<%= food._id %>/pause"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="button button-secondary" name="action" value="<%= food.status === 'open' ? 'pause' : 'resume' %>"><%= t(food.status === 'open' ? 'Pause reservations' : 'Resume reservations') %></button></form>
+          <% reservations.filter(row => String(row.listing) === String(food._id)).forEach(row => { %>
+            <p><%= row.user?.name || t('Account unavailable') %> · <%= row.quantity %> <%= t('portions') %> · <%= t(row.displayStatus) %></p><a class="text-action" href="/share-food/pickups/<%= row.id %>"><%= t('Review pickup') %></a>
+          <% }); %>
+        </article>
+      <% }); %>
+    </section>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

@@ -34,7 +34,7 @@ function createAuthRoutes({ connection, models, cookieOptions, loginLimit = 10, 
     try {
       user = await models.User.create({
         name: name.trim(), email: email.trim().toLowerCase(), passwordHash: await hashPassword(password),
-        role: 'recipient' // Ignore role/permissions from public form data.
+        role: 'member' // Organization access is never granted by signup.
       });
     } catch (error) {
       if (error.code !== 11000) throw error;

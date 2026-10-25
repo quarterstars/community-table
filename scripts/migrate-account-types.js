@@ -6,10 +6,7 @@ const { auditAccountTypes, migrateAccountTypes } = require('../src/services/acco
   try {
     const apply = process.argv.includes('--apply');
     const result = apply ? await migrateAccountTypes(database) : await auditAccountTypes(database);
-    console.log(JSON.stringify(result, null, 2));
-    if (result.conflicts.length) {
-      console.error('CONFLICT: reservation history and organizer membership coexist. No account types were migrated. Preserve the recipient account and use a different email for a separate organizer account.');
-      process.exitCode = 1;
-    } else console.log(apply ? 'Account type migration complete. History and memberships preserved.' : 'Audit only; no data changed. Run with --apply to migrate history-free legacy organizer accounts.');
+    console.log(JSON.stringify({ legacyInactiveWithHistory: result.conflicts.length, legacyInactiveWithoutHistory: result.candidates.length, migrated: 0 }));
+    console.log('Account-type conversion is retired. All accounts can share and receive. Legacy organization access is unchanged; grant individual memberships explicitly.');
   } finally { await database.connection.close(); }
 })().catch(() => { console.error('Account type migration failed; check configuration and database connection.'); process.exitCode = 1; });

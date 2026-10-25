@@ -6,6 +6,8 @@ const { createPageRoutes } = require('./routes/pages');
 const { createAuthRoutes } = require('./routes/auth');
 const { createOrganizerRoutes } = require('./routes/organizers');
 const { createInvitationRoutes } = require('./routes/invitations');
+const { createSharingRoutes } = require('./routes/sharing');
+const { membershipAccess } = require('./services/accounts');
 const { csrfProtection, accountHome } = require('./middleware/security');
 const { HttpError } = require('./lib/errors');
 const { localeMiddleware, safeReturn } = require('./lib/i18n');
@@ -50,8 +52,8 @@ function createApp({ connection, models, sessionSecret, production = false, trus
     if (req.session.userId) {
       req.user = await models.User.findById(req.session.userId).select('name email role createdAt').lean();
       res.locals.currentUser = req.user;
-      if (req.user?.role === 'organizer') {
-        res.locals.memberships = await models.Membership.find({ user: req.user._id }).populate('organization', 'name').lean();
+      if (req.user) {
+        res.locals.memberships = await models.Membership.find({ user: req.user._id, ...membershipAccess(req.user) }).populate('organization', 'name').lean();
         const selected = res.locals.memberships.find(member => String(member.organization?._id) === req.session.organizationId) || res.locals.memberships.find(member => member.organization);
         if (selected) res.locals.organizerBase = `/organizer/${selected.organization._id}`;
       }
@@ -61,6 +63,7 @@ function createApp({ connection, models, sessionSecret, production = false, trus
   app.use(createAuthRoutes({ connection, models, cookieOptions, loginLimit, signupLimit }));
   app.use(createInvitationRoutes({ connection, models }));
   app.use(createOrganizerRoutes({ connection, models, uploadDirectory }));
+  app.use(createSharingRoutes({ connection, models, uploadDirectory }));
   app.use(createPageRoutes({ connection, models }));
   app.use((req, res) => res.status(404).render('not-found', { title: 'Page not found', activePage: 'browse' }));
   app.use((error, req, res, next) => {
