@@ -2,8 +2,9 @@
 <%- include('partials/header') %>
 <main id="main-content" class="page">
   <a class="back-link" href="/my-pickups"><%- include('partials/icon', { name: 'left' }) %> <%= t("My Pickups") %></a>
-  <div class="page-intro"><h1><%= t("Your reservation") %></h1></div>
+  <div class="page-intro"><h1><%= t(reservation.status === 'cancelled' ? 'Reservation cancelled.' : 'Your reservation') %></h1></div>
+  <p class="field-help pickup-timezone"><%= t('Times shown in America/Chicago.') %></p>
   <%- include('partials/preview-notice') %>
-  <div class="pickup-list"><%- include('partials/reservation-card', { reservation, showDetailLink: false }) %></div>
+  <div class="pickup-list"><%- include('partials/reservation-card', { reservation }) %></div>
 </main>
 <%- include('partials/footer') %>

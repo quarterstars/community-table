@@ -218,6 +218,20 @@ button, a, input { touch-action: manipulation; scroll-margin-bottom: calc(var(--
 .pickup-fact { margin-top: 14px; }
 .pickup-code { display: block; margin-top: 5px; padding: 10px; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; font-size: 16px; overflow-wrap: anywhere; }
 .cancel-form { margin-top: 20px; }
+.pickup-timezone { margin: -8px 0 12px; }
+.pickup-summary { padding: 12px; }
+.pickup-summary .food-title-row h2 { flex-basis: 140px; overflow-wrap: anywhere; }
+.pickup-summary-time { margin-top: 6px; font-size: 14px; color: var(--muted); }
+.pickup-view { min-height: 44px; padding: 8px 12px; margin-top: 10px; }
+.pickup-history { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 8px; }
+.pickup-history > summary { min-height: 48px; padding: 12px 0; cursor: pointer; font-weight: 600; color: var(--green); }
+.pickup-history > summary:focus-visible { outline: 3px solid #216cbd; outline-offset: 3px; }
+.pickup-history-list { list-style: none; padding: 0; margin: 0; }
+.pickup-history-row { border-top: 1px solid var(--line); }
+.pickup-history-row a { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 4px 10px; padding: 12px 4px; min-height: 44px; }
+.pickup-history-name { font-weight: 600; overflow-wrap: anywhere; }
+.pickup-history-row time { grid-column: 1 / -1; color: var(--muted); font-size: 14px; }
+.pickup-history-row.is-cancelled { background: var(--soft); color: var(--muted); }
 .error-state { margin-top: 16px; }
 textarea, select { font: inherit; color: inherit; max-width: 100%; }
 .account-form textarea, .account-form select { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid #bac7c1; border-radius: 6px; background: var(--surface); }

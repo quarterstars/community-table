@@ -579,7 +579,7 @@ test('language switching translates recipient/organizer forms, navigation, statu
   await world.recipient.agent.post('/language').type('form').send({ language: 'am' }).expect(403);
   await post(world.recipient, '/language', { language: 'invalid' }).expect(422);
   await post(world.recipient, '/language', { language: 'am', returnTo: '/profile' }).expect(303).expect('Location', '/profile');
-  for (const [path, label] of [['/', 'Available for pickup'], ['/profile', 'Your account'], ['/my-pickups', 'No reservations yet'], ['/about', 'About Community Table'], [`/foods/${listing.slug}`, 'Food details']]) {
+  for (const [path, label] of [['/', 'Available for pickup'], ['/profile', 'Your account'], ['/my-pickups', 'No upcoming pickups'], ['/about', 'About Community Table'], [`/foods/${listing.slug}`, 'Food details']]) {
     const page = await world.recipient.agent.get(path).expect(200);
     assert.match(page.text, /<html lang="am">/);
     assert.ok(page.text.includes(t(label)), `${path}: ${label}`);
@@ -658,9 +658,12 @@ test('photo listing rehearsal: create, preview form, persist, reserve, code look
   const reservation = await reserve(world.recipient, listing, 2);
   assert.equal((await latest(listing)).availablePortions, 3);
   const pickups = await world.recipient.agent.get('/my-pickups').expect(200);
-  assert.ok(pickups.text.includes(reservation.pickupCode));
+  assert.ok(!pickups.text.includes(reservation.pickupCode));
   assert.match(pickups.text, /2 portions/);
-  assert.ok(pickups.text.includes(listing.pickupLocation));
+  assert.ok(!pickups.text.includes(listing.pickupLocation));
+  const details = await world.recipient.agent.get(`/reservations/${reservation._id}`).expect(200);
+  assert.ok(details.text.includes(reservation.pickupCode));
+  assert.ok(details.text.includes(listing.pickupLocation));
   await post(world.recipient, `/foods/${listing.slug}/reserve`, { quantity: '2', requestKey: reservation.requestKey }).expect(303);
   assert.equal((await latest(listing)).availablePortions, 3);
   // Reconstruct the app with its persistent store/directory, preserving session.

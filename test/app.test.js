@@ -162,11 +162,14 @@ test('reservation persists inventory, pickup code, instructions, session and acc
   assert.equal(saved.quantity, 2);
   assert.equal(await remaining(food), 6);
   const page = await agent.get('/my-pickups').expect(200);
-  assert.ok(page.text.includes(saved.pickupCode));
+  assert.ok(!page.text.includes(saved.pickupCode));
   assert.match(page.text, /2 portions/);
   assert.match(page.text, /America\/Chicago/);
   assert.ok(page.text.includes(saved.pickupStartsAt.toISOString()));
-  assert.ok(page.text.includes(saved.food.pickupInstructions));
+  assert.ok(!page.text.includes(saved.food.pickupInstructions));
+  const details = await agent.get(response.headers.location).expect(200);
+  assert.ok(details.text.includes(saved.pickupCode));
+  assert.ok(details.text.includes(saved.food.pickupInstructions));
   await database.connection.close();
   database = await connectDatabase(uri, { dbName: databaseName });
   app = newApp();
@@ -174,8 +177,9 @@ test('reservation persists inventory, pickup code, instructions, session and acc
   const profile = await restarted.get('/profile').set('Cookie', account.cookie).expect(200);
   assert.match(profile.text, /persist@example.test/);
   const pickups = await restarted.get('/my-pickups').set('Cookie', account.cookie).expect(200);
-  assert.ok(pickups.text.includes(saved.pickupCode));
-  await restarted.get(response.headers.location).set('Cookie', account.cookie).expect(200);
+  assert.ok(!pickups.text.includes(saved.pickupCode));
+  const restartedDetails = await restarted.get(response.headers.location).set('Cookie', account.cookie).expect(200);
+  assert.ok(restartedDetails.text.includes(saved.pickupCode));
   assert.equal(await remaining(food), 6);
   assert.equal(await database.models.Reservation.countDocuments(), 1);
 });

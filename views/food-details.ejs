@@ -67,7 +67,7 @@
     <% if (currentUser) { %>
       <label class="confirmation-check"><input type="checkbox" name="confirm" value="reserve" required> <%= t('I confirm this quantity and pickup window.') %></label>
       <button class="button button-primary reserve-submit" type="submit" aria-describedby="reservation-note"><%= t("Reserve food") %></button>
-      <p id="reservation-note" class="reservation-note"><%= t("You can cancel before the pickup window ends. Your pickup code will appear in My Pickups.") %></p>
+      <p id="reservation-note" class="reservation-note"><%= t("You can cancel before the pickup window ends. Open your pickup details for the code and instructions.") %></p>
     <% } else { %>
       <a class="button button-primary reserve-submit" href="/login?next=<%= encodeURIComponent('/foods/' + food.id) %>"><%= t("Log in to reserve") %></a>
       <p class="reservation-note"><%= t("An account is required to save a reservation.") %></p>

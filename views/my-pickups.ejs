@@ -9,15 +9,36 @@
       <a class="button button-primary" href="/login?next=%2Fmy-pickups"><%= t("Log in") %></a>
       <a class="text-action" href="/signup?next=%2Fmy-pickups"><%= t("Create an account") %></a>
     </section>
-  <% } else if (!reservations.length) { %>
-    <section class="empty-state">
-      <h2><%= t("No reservations yet") %></h2>
-      <p><%= t("Reserve food from an available listing to see its quantity, pickup code, and instructions here.") %></p>
-      <a class="button button-primary" href="/"><%= t("Browse food") %></a>
-    </section>
   <% } else { %>
+    <% const upcoming = reservations.filter(row => row.displayStatus === 'active'); const history = reservations.filter(row => row.displayStatus !== 'active'); %>
+    <p class="field-help pickup-timezone"><%= t('Times shown in America/Chicago.') %></p>
     <%- include('partials/preview-notice') %>
-    <div class="pickup-list"><% reservations.forEach((reservation) => { %><%- include('partials/reservation-card', { reservation, showDetailLink: true }) %><% }); %></div>
+    <% if (!upcoming.length) { %>
+      <section class="empty-state"><h2><%= t('No upcoming pickups') %></h2><a class="button button-primary" href="/"><%= t('Browse food') %></a></section>
+    <% } else { %>
+      <div class="pickup-list upcoming-pickups">
+        <% upcoming.forEach(reservation => { %>
+          <article class="pickup-card pickup-summary">
+            <div class="food-title-row"><h2><%= reservation.food.name %></h2><span class="sample-label"><%= t(reservation.statusLabel) %></span></div>
+            <p class="organization"><%= reservation.quantity %> <%= t(reservation.quantity === 1 ? 'portion' : 'portions') %> · <%= reservation.food.organization %></p>
+            <p class="pickup-summary-time"><time datetime="<%= reservation.pickupDateISO %>"><%= reservation.pickupSummary %></time></p>
+            <a class="button button-secondary pickup-view" href="/reservations/<%= reservation.id %>"><%= t('View pickup') %></a>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+    <details class="pickup-history">
+      <summary><%= t('History ({count})', { count: history.length }) %></summary>
+      <% if (!history.length) { %><p class="field-help"><%= t('No past pickups') %></p><% } else { %>
+        <ul class="pickup-history-list">
+          <% history.forEach(reservation => { %>
+            <li class="pickup-history-row <%= reservation.status === 'cancelled' ? 'is-cancelled' : '' %>">
+              <a href="/reservations/<%= reservation.id %>"><span class="pickup-history-name"><%= reservation.food.name %></span><span class="sample-label"><%= t(reservation.statusLabel) %></span><time datetime="<%= reservation.pickupDateISO %>"><%= reservation.pickupHistoryDate %></time></a>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </details>
   <% } %>
 </main>
 <%- include('partials/footer') %>

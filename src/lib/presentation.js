@@ -25,7 +25,17 @@ function presentListing(listing, language = 'en') {
 }
 
 function presentReservation(reservation, language = 'en') {
-  return { ...reservation, food: { ...localizedText(reservation.food, language), imageThumbnail: thumbnailFor(reservation.food.image) }, id: reservation._id.toString(), ...pickupPresentation(reservation.pickupStartsAt, reservation.pickupEndsAt, language), displayStatus: reservation.status === 'active' && reservation.pickupEndsAt <= new Date() ? 'missed' : reservation.status, canCancel: reservation.status === 'active' && reservation.pickupEndsAt > new Date() };
+  const start = new Date(reservation.pickupStartsAt), end = new Date(reservation.pickupEndsAt);
+  const expired = reservation.status === 'active' && end <= new Date();
+  const displayStatus = expired ? 'missed' : reservation.status;
+  const locale = language === 'am' ? 'am-ET' : 'en-US';
+  const date = new Intl.DateTimeFormat(locale, { calendar: 'gregory', timeZone: zone, year: 'numeric', month: 'short', day: 'numeric' });
+  const summary = new Intl.DateTimeFormat(locale, { calendar: 'gregory', timeZone: zone, dateStyle: 'medium', timeStyle: 'short' });
+  const offsets = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' });
+  const offsetAt = value => offsets.formatToParts(value).find(part => part.type === 'timeZoneName').value;
+  // Keep DST clock changes unambiguous; ordinary cards use the page's zone label.
+  const pickupSummary = offsetAt(start) === offsetAt(end) ? summary.formatRange(start, end) : `${date.format(start)} · ${pickupPresentation(start, end, language).pickupWindow}`;
+  return { ...reservation, food: { ...localizedText(reservation.food, language), imageThumbnail: thumbnailFor(reservation.food.image) }, id: reservation._id.toString(), ...pickupPresentation(start, end, language), pickupSummary, pickupHistoryDate: date.formatRange(start, end), displayStatus, statusLabel: expired ? 'Expired' : ({ active: 'Reserved', cancelled: 'Cancelled', collected: 'Collected', missed: 'Missed' }[reservation.status] || reservation.status), canCancel: displayStatus === 'active' };
 }
 
 module.exports = { pickupPresentation, presentListing, presentReservation };
