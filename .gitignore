@@ -19,3 +19,13 @@ data/
 *.log
 playwright-report/
 test-results/
+.envrc
+.npmrc
+.mongorc.js
+.mongodb/
+backups/
+dump/
+*.bson
+*.archive
+*.sql
+*.bak

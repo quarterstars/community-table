@@ -2,7 +2,7 @@
 
 Run `npm start` in the project folder and open **http://127.0.0.1:3000**. Keep the existing ignored `.env`. Startup verifies Atlas and never resets data.
 
-The five fictional sample foods retain their original photos and IDs. Their recording window is **October 25, 00:00 through October 26, 23:59, 2026, America/Chicago**. About explains that no real pickup is offered. To inspect/prepare a later day explicitly:
+The five fictional sample foods retain their original photos and IDs. About explains that no real pickup is offered. Inspect readiness before each recording; preparation sets the fictional samples' pickup windows for today and tomorrow in **America/Chicago**:
 
 ```sh
 npm run demo:recording
